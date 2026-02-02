@@ -259,12 +259,11 @@ with tab1:
     # Función para colorear filas
     def highlight_stock(row):
         if row['Estado Stock'] == 'CRÍTICO':
-            return ['background-color: #ffcccc'] * len(row)
+            return ['background-color: #ff9999; color: #333333'] * len(row)
         elif row['Estado Stock'] in ['MUY BAJO', 'BAJO']:
-            return ['background-color: #fff4cc'] * len(row)
+            return ['background-color: #fffd7d; color: #333333'] * len(row)
         else:
             return [''] * len(row)
-    
     # Mostrar tabla con estilos
     st.dataframe(
         df_display.style.apply(highlight_stock, axis=1),
