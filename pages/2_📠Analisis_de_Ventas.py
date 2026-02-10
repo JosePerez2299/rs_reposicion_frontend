@@ -19,13 +19,13 @@ aplicar_filtros = sidebar.button("Aplicar Filtros")
 
 if aplicar_filtros:
     st.title("Filtros aplicados")
-    st.write("Fechas")
-    st.write(dates_selected)
-    st.write("Tiendas")
-    st.write(stores_selected)
-    st.write("Productos")
-    st.write(products_selected)
-    st.write("Categorías")
-    st.write(category_selected)
+
+    body = {
+        "dates": dates_selected,
+        "stores": stores_selected,
+        "products": products_selected,
+        "categories": category_selected
+    }
+    st.write(body)
 else:
     st.write("Esperando filtros...")
