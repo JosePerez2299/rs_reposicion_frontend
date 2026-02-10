@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import streamlit as st
 
 
@@ -7,13 +7,15 @@ def dates_filter(box):
 
     hoy = date.today()
     inicio_mes = date(hoy.year, hoy.month, 1)
+    hace_90_dias = hoy - timedelta(days=90)
 
     fechas = box.date_input(
-        "Selecciona el intervalo:",
+        "Selecciona el intervalo (desde - hasta):",
         value=(inicio_mes, hoy),
-        min_value=date(2000, 1, 1),
+        min_value=hace_90_dias,
         max_value=hoy,
-        format="DD/MM/YYYY"
+        format="DD/MM/YYYY",
+        help="Selecciona un rango de fechas (máximo 90 días) o un solo día"
     )
 
     # Manejar tanto un solo día como un rango
