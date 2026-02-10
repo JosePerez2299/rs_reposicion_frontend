@@ -2,16 +2,17 @@
 from utils.api_client import get_stores
 
 def store_filter(box):
-    box.subheader("Tiendas")
     
     opciones = get_stores()
 
     if opciones:
         seleccionados = box.multiselect(
-            "Busca por ID o nombre:",
+            "Tiendas",
             options=opciones,
             format_func=lambda x: f"{x['store_id']} - {x['name']}",
-            default=[]
+            default=[],
+            help="Selecciona ninguna o más tiendas",
+            placeholder="Desplegar tiendas"
         )
         
         if seleccionados:

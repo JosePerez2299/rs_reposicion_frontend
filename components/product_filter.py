@@ -5,10 +5,8 @@ from utils.api_client import get_products
 DEBOUNCE_MS = 500
 MIN_CHARS = 3
 
-def product_filter(box):
-    box.subheader("Productos")
+def product_filter(box, category_ids=None):  # Cambio: category_id -> category_ids
 
-    # Inicializar estados
     if "last_input_time" not in st.session_state:
         st.session_state.last_input_time = 0
     
@@ -17,34 +15,51 @@ def product_filter(box):
     
     if "product_selections" not in st.session_state:
         st.session_state.product_selections = []
+    
+    # Detectar cambio de categorías y limpiar selecciones
+    if "last_categories" not in st.session_state:  # Cambio: last_category -> last_categories
+        st.session_state.last_categories = None
+    
+    # Comparar listas en lugar de valores únicos
+    if st.session_state.last_categories != category_ids:
+        st.session_state.product_options = []
+        st.session_state.product_selections = []
+        st.session_state.last_categories = category_ids
 
     query = box.text_input(
-        "Busca por nombre o ID:",
-        key="product_search"
+        "Encontrar producto",
+        key="product_search",
+        help="Solo para búsqueda por nombre o ID, se debe seleccionar en el filtro de productos ",
+        placeholder="Escribe para buscar...",
     )
 
-    # Solo buscar si cumple requisitos mínimos
-    if query and len(query) >= MIN_CHARS:
+    # Buscar si hay query O si hay categorías seleccionadas
+    should_search = (query and len(query) >= MIN_CHARS) or (category_ids and len(category_ids) > 0)
+    
+    if should_search:
         now = time.time() * 1000
 
         if now - st.session_state.last_input_time > DEBOUNCE_MS:
             st.session_state.last_input_time = now
-            nuevas_opciones = get_products(search=query)
+            nuevas_opciones = get_products(
+                search=query if query and len(query) >= MIN_CHARS else None,
+                category_id=category_ids  # Pasas la lista completa
+            )
             
             if nuevas_opciones:
                 st.session_state.product_options = nuevas_opciones
 
-    # Mostrar multiselect solo si hay opciones disponibles
     if st.session_state.product_options:
         seleccionados = box.multiselect(
-            "Resultados:",
+            "Productos Encontrados:",
             options=st.session_state.product_options,
             default=st.session_state.product_selections,
-            format_func=lambda x: f"{x['name']}",
-            key="product_multiselect"
+            format_func=lambda x: f"{x['name']} - {x['product_id'][-3:]}",
+            key="product_multiselect",
+            help="Selecciona ninguno o más productos",
+            placeholder="Desplegar productos"
         )
         
-        # Actualizar selecciones
         st.session_state.product_selections = seleccionados
 
         if seleccionados:

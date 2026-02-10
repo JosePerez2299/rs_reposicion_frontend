@@ -18,7 +18,7 @@ def get_products(search: str | None = None, category_id: int | None = None, limi
         params["limit"] = limit
 
         try:
-            response = requests.get(f"{BASE_URL}/products", params=params)
+            response = requests.get(f"{BASE_URL}/products/id-names", params=params)
             response.raise_for_status()
             return response.json()
         except Exception as e:
@@ -26,6 +26,8 @@ def get_products(search: str | None = None, category_id: int | None = None, limi
             return []
 
     return []
+
+
 @st.cache_data(ttl=300)
 def get_stores():
     try:
@@ -36,6 +38,7 @@ def get_stores():
         st.error(f"Error: {e}")
         return []
 
+@st.cache_data(ttl=3600)
 def get_categories():
     try:
         response = requests.get(f"{BASE_URL}/products/categories")
