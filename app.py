@@ -10,6 +10,7 @@ st.set_page_config(
 st.title("Bienvenido a Mi Aplicación")
 st.write("Usa el menú lateral para navegar")
 
+
 st.markdown("""
 ### Páginas disponibles:
 - 📊 **Dashboard**: Visualiza tus datos
