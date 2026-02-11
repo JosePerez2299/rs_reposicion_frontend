@@ -13,9 +13,14 @@ stores_selected = store_filter(sidebar)
 category_selected = category_filter(sidebar)
 products_selected = product_filter(sidebar, category_ids=category_selected)
 
+# Validación ANTES del botón
+validacion_ok = True
+if not products_selected:
+    sidebar.error("⚠️ Debes seleccionar al menos un producto")
+    validacion_ok = False
 
-
-aplicar_filtros = sidebar.button("Aplicar Filtros")
+# El botón solo funciona si la validación está ok
+aplicar_filtros = sidebar.button("Aplicar Filtros", disabled=not validacion_ok)
 
 if aplicar_filtros:
     st.title("Filtros aplicados")

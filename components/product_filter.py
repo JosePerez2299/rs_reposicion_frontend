@@ -26,7 +26,7 @@ def product_filter(box, category_ids=None):
     # Preseleccionar productos que están en las opciones filtradas Y en la selección previa
     preselected = [
         prod for prod in options
-        if prod["model"] in st.session_state.product_selection_ids
+        if prod["name"] in st.session_state.product_selection_ids
     ]
     
     # Mostrar mensaje mientras se construye el multiselect
@@ -36,11 +36,11 @@ def product_filter(box, category_ids=None):
                 "Productos",
                 options=options,
                 default=preselected,
-                format_func=lambda x: f"{x['model']} - {x['name']}",
+                format_func=lambda x: x["name"].strip(),
                 key="product_multiselect"
             )
     
     # Actualizar la lista de IDs seleccionados
-    st.session_state.product_selection_ids = [item["model"] for item in selected]
+    st.session_state.product_selection_ids = [item["name"].strip() for item in selected]
     
     return st.session_state.product_selection_ids
