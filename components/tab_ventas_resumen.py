@@ -18,7 +18,7 @@ def render(filtros):
             fecha_inicio = datetime.datetime.strptime(dates_selected['fecha_inicio'], "%Y-%m-%d")
             fecha_fin = datetime.datetime.strptime(dates_selected['fecha_fin'], "%Y-%m-%d")
             st.write(f"**📅 Periodo:** {fecha_inicio.strftime('%d/%m/%Y')} al {fecha_fin.strftime('%d/%m/%Y')}")
-            st.write(f"**🏪 Tiendas:** {len(stores_selected)} seleccionadas")
+            st.write(f"**🏪 Tiendas:** {'Todas' if len(stores_selected) == 0 else len(stores_selected)} seleccionadas")
         with col2:
             st.write(f"**📦 Productos:** {len(products_selected)} seleccionados")
     
@@ -42,7 +42,7 @@ def render(filtros):
         metric4.metric("Productos", str(len(filtros['products'])))
     with col5:
         metric5 = st.empty()
-        metric5.metric("Tiendas", str(len(filtros['stores'])))
+        metric5.metric("Tiendas", str('Todas' if len(filtros['stores']) == 0 else len(filtros['stores'])))
     
     with st.spinner("Cargando datos de ventas..."):
         sales_data = get_total_sales_data()

@@ -43,19 +43,16 @@ if not products_selected:
     sidebar.error("⚠️ Debes seleccionar al menos un producto")
     validacion_ok = False
 
-# Detectar si los filtros han cambiado
-filtros_cambiaron = (
-    st.session_state["filtros_aplicados"]
-    and st.session_state["filtros"] != filtros_actuales
-)
-
-
-# El botón ACTUALIZA el session_state
 aplicar_filtros = sidebar.button("Aplicar Filtros", disabled=not validacion_ok)
 
 if aplicar_filtros:
     st.session_state["filtros_aplicados"] = True
     st.session_state["filtros"] = filtros_actuales
+
+filtros_cambiaron = (
+    st.session_state["filtros_aplicados"]
+    and st.session_state["filtros"] != filtros_actuales
+)
 
 # ============= NAVEGACIÓN ====================
 st.title("📊 Dashboard de Ventas e Inventario")

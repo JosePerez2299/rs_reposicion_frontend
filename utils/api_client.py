@@ -40,6 +40,6 @@ def get_categories():
 
 # TO DO: Implementar llamada a API real
 def get_total_sales_data() -> dict[str, int]:
-    time.sleep(5)
+    time.sleep(1)
 
     return {"sales": 1000, "transactions": 100, "ticket_promedio": 100}
