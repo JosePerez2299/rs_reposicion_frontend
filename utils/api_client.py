@@ -1,3 +1,4 @@
+import time 
 import requests
 import streamlit as st
 import os
@@ -17,7 +18,7 @@ def get_products():
     return []
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=3600)
 def get_stores():
     try:
         response = requests.get(f"{BASE_URL}/store")
@@ -36,3 +37,9 @@ def get_categories():
     except Exception as e:
         st.error(f"Error: {e}")
         return []
+
+# TO DO: Implementar llamada a API real
+def get_total_sales_data() -> dict[str, int]:
+    time.sleep(5)
+
+    return {"sales": 1000, "transactions": 100, "ticket_promedio": 100}
