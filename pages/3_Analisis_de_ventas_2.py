@@ -363,7 +363,6 @@ with tab1:
     
     st.plotly_chart(fig_evol, use_container_width=True)
 
-
 # ============= TAB 2: ANÁLISIS DETALLADO =============
 with tab2:
     st.header("Análisis Detallado por Producto")
@@ -410,107 +409,166 @@ with tab2:
             subtab1, subtab2, subtab3 = st.tabs(["🏪 Por Tienda", "📅 Evolución", "📊 Stats"])
             
             with subtab1:
-                df_tiendas_prod = df_producto.groupby("tienda_nombre").agg({
-                    "ventas": "sum",
-                    "transacciones": "sum"
+                # Obtener datos de inventario y rotación para este producto
+                df_rotacion_prod = df_rotacion[df_rotacion['producto'] == producto].copy()
+                
+                # Agregar datos de ventas por tienda
+                df_tiendas_prod = df_producto.groupby(["tienda_id", "tienda_nombre"]).agg({
+                    "transacciones": "sum",
+                    "ventas": "sum"
                 }).reset_index()
-                df_tiendas_prod['ticket_promedio'] = (df_tiendas_prod['ventas'] / df_tiendas_prod['transacciones']).round(2)
-                df_tiendas_prod['porcentaje'] = (df_tiendas_prod['ventas'] / df_tiendas_prod['ventas'].sum() * 100).round(1)
-                df_tiendas_prod = df_tiendas_prod.sort_values('ventas', ascending=False)
                 
-                col1, col2 = st.columns([2, 1])
-                
-                with col1:
-                    st.dataframe(
-                        df_tiendas_prod.style.format({
-                            "ventas": "${:,.0f}",
-                            "transacciones": "{:,}",
-                            "ticket_promedio": "${:,.2f}",
-                            "porcentaje": "{:.1f}%"
-                        }),
-                        use_container_width=True,
-                        hide_index=True
-                    )
-                
-                with col2:
-                    fig_bar_tienda = px.bar(
-                        df_tiendas_prod,
-                        y='tienda_nombre',
-                        x='ventas',
-                        orientation='h',
-                        text='ventas'
-                    )
-                    fig_bar_tienda.update_traces(texttemplate='$%{text:,.0f}', textposition='outside')
-                    fig_bar_tienda.update_layout(showlegend=False, height=250)
-                    st.plotly_chart(fig_bar_tienda, use_container_width=True)
-            
-            with subtab2:
-                df_temporal = df_producto.groupby("fecha").agg({
-                    "ventas": "sum",
-                    "transacciones": "sum"
-                }).reset_index()
-                df_temporal['ticket_promedio'] = (df_temporal['ventas'] / df_temporal['transacciones']).round(2)
-                
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(
-                    x=df_temporal['fecha'],
-                    y=df_temporal['ventas'],
-                    mode='lines+markers',
-                    name='Ventas',
-                    line=dict(color='#1f77b4', width=3),
-                    marker=dict(size=8)
-                ))
-                
-                fig.update_layout(
-                    title='Evolución de Ventas',
-                    xaxis_title='Fecha',
-                    yaxis_title='Ventas ($)',
-                    hovermode='x unified',
-                    height=350
+                # Merge con datos de rotación/inventario
+                df_tabla_base = df_rotacion_prod.merge(
+                    df_tiendas_prod,
+                    on=["tienda_nombre"],
+                    how="left"
                 )
                 
-                st.plotly_chart(fig, use_container_width=True)
+                # EXPANDIR CADA FILA EN 3 VARIANTES (SIZES)
+                filas_expandidas = []
                 
-                with st.expander("📋 Ver datos por fecha"):
-                    st.dataframe(
-                        df_temporal.style.format({
-                            "ventas": "${:,.0f}",
-                            "transacciones": "{:,}",
-                            "ticket_promedio": "${:,.2f}"
-                        }),
-                        use_container_width=True,
-                        hide_index=True
-                    )
-            
-            with subtab3:
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.write("**📊 Estadísticas**")
-                    stats = {
-                        "Total Ventas": f"${ventas_producto:,.0f}",
-                        "Total Trans.": f"{transacciones_producto:,}",
-                        "Ticket Prom.": f"${ticket_prom:,.2f}",
-                        "Días con Ventas": len(df_temporal),
-                        "Venta Prom. Diaria": f"${df_temporal['ventas'].mean():,.0f}",
-                        "Mejor Día": f"${df_temporal['ventas'].max():,.0f}",
-                        "Peor Día": f"${df_temporal['ventas'].min():,.0f}"
-                    }
-                    for key, value in stats.items():
-                        st.text(f"{key}: {value}")
-                
-                with col2:
-                    st.write("**🏆 Top 3 Tiendas**")
-                    top_tiendas = df_tiendas_prod.head(3)
-                    for i, row in top_tiendas.iterrows():
-                        st.text(f"{row['tienda_nombre']}: ${row['ventas']:,.0f}")
+                for _, row in df_tabla_base.iterrows():
+                    # Extraer número de tienda
+                    tienda_nombre = row['tienda_nombre']
+                    tienda_num = int(tienda_nombre.split()[-1]) if tienda_nombre.split()[-1].isdigit() else 0
                     
-                    st.write("")
-                    st.write("**📅 Top 3 Mejores Días**")
-                    top_dias = df_temporal.nlargest(3, 'ventas')[['fecha', 'ventas']]
-                    for i, row in top_dias.iterrows():
-                        st.text(f"{row['fecha']}: ${row['ventas']:,.0f}")
+                    # Crear 3 variantes por cada tienda
+                    for variante in range(3):
+                        # Generar código único: PRODUCTO-TIENDA-VARIANTE
+                        codigo = f"{idx:03d}{tienda_num % 100:02d}{variante}"
+                        
+                        # Distribuir las métricas entre las 3 variantes (simulado)
+                        # En producción, estos datos vendrían directamente de la BD
+                        np.random.seed(int(codigo))  # Para resultados consistentes
+                        
+                        # Distribuir stock (la suma de las 3 variantes = stock total)
+                        pesos = np.random.dirichlet(np.ones(3))
+                        stock_variante = int(row['stock_actual'] * pesos[variante])
+                        
+                        # Distribuir ventas en unidades
+                        ventas_variante = int(row['transacciones'] * pesos[variante])
+                        
+                        # Distribuir ventas en dinero
+                        ventas_dinero_variante = int(row['ventas'] * pesos[variante])
+                        
+                        # Distribuir compras (unidades_vendidas)
+                        compras_variante = int(row['unidades_vendidas'] * pesos[variante])
+                        
+                        # Rotación se mantiene similar (pequeña variación)
+                        rotacion_variante = row['indice_rotacion'] * np.random.uniform(0.8, 1.2)
+                        
+                        filas_expandidas.append({
+                            'Código Producto': codigo,
+                            'Tienda': tienda_nombre,
+                            'Nombre Producto': row['producto'],
+                            'Compras': compras_variante,
+                            'Ventas': ventas_variante,
+                            'Ventas $': ventas_dinero_variante,
+                            'Stock': stock_variante,
+                            'Porcentaje Rotación': rotacion_variante
+                        })
+                
+                # Crear DataFrame expandido con índice nuevo
+                df_tabla_detallada = pd.DataFrame(filas_expandidas)
+                df_tabla_detallada = df_tabla_detallada.reset_index(drop=True)
+                
+                # Ordenar por tienda y código
+                df_tabla_detallada = df_tabla_detallada.sort_values(['Tienda', 'Código Producto'], ascending=[True, True])
+                df_tabla_detallada = df_tabla_detallada.reset_index(drop=True)
+      # ================= FILTROS TABLA DETALLADA =================
+                st.markdown("### Filtros")
 
+                colf1, colf2 = st.columns(2)
+
+                with colf1:
+                    tiendas_disponibles = sorted(df_tabla_detallada["Tienda"].unique())
+                    tiendas_seleccionadas = st.multiselect(
+                        "Filtrar por Tienda",
+                        options=tiendas_disponibles,
+                        default=tiendas_disponibles,
+                        key=f"tiendas_filter_{idx}_{producto}"  # Key única por producto
+                    )
+
+                with colf2:
+                    codigo_busqueda = st.text_input(
+                        "Filtrar por Código",
+                        placeholder="Ej: 001010",
+                        key=f"codigo_filter_{idx}_{producto}"  # Key única por producto
+                    )
+
+                # Aplicar filtros
+                df_filtrado = df_tabla_detallada.copy()
+
+                if tiendas_seleccionadas:
+                    df_filtrado = df_filtrado[
+                        df_filtrado["Tienda"].isin(tiendas_seleccionadas)
+                    ]
+
+                if codigo_busqueda:
+                    df_filtrado = df_filtrado[
+                        df_filtrado["Código Producto"]
+                        .astype(str)
+                        .str.contains(codigo_busqueda.strip(), case=False, na=False)
+                    ]
+
+                # Reordenar luego del filtro
+                df_filtrado = df_filtrado.sort_values(
+                    ['Tienda', 'Código Producto'],
+                    ascending=[True, True]
+                ).reset_index(drop=True)
+
+                # Mostrar tabla CON EL DATAFRAME FILTRADO
+                st.dataframe(
+                    df_filtrado.style.format({  # CAMBIAR df_tabla_detallada por df_filtrado
+                        "Compras": "{:,}",
+                        "Ventas": "{:,}",
+                        "Ventas $": "${:,.0f}",
+                        "Stock": "{:,}",
+                        "Porcentaje Rotación": "{:.2f}"
+                    }).background_gradient(subset=['Ventas $'], cmap='YlGn'),
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={
+                        'Código Producto': st.column_config.TextColumn(
+                            'Código Producto',
+                            width='small'
+                        ),
+                        'Tienda': st.column_config.TextColumn(
+                            'Tienda',
+                            width='small'
+                        ),
+                        'Nombre Producto': st.column_config.TextColumn(
+                            'Nombre Producto',
+                            width='large'
+                        ),
+                        'Compras': st.column_config.NumberColumn(
+                            'Compras',
+                            help='Unidades compradas/recibidas',
+                            format='%d'
+                        ),
+                        'Ventas': st.column_config.NumberColumn(
+                            'Ventas',
+                            help='Unidades vendidas',
+                            format='%d'
+                        ),
+                        'Ventas $': st.column_config.NumberColumn(
+                            'Ventas $',
+                            help='Monto en dinero',
+                            format='$%d'
+                        ),
+                        'Stock': st.column_config.NumberColumn(
+                            'Stock',
+                            format='%d'
+                        ),
+                        'Porcentaje Rotación': st.column_config.NumberColumn(
+                            '% Rotación',
+                            format='%.2f'
+                        )
+                    }
+                )
+
+ 
 
 # ============= TAB 3: COMPARATIVAS =============
 with tab3:
@@ -603,6 +661,7 @@ with tab3:
 
 # ============= TAB 4: INVENTARIO Y ROTACIÓN =============
 with tab4:
+    st.write("INVENTARIO Y ROTACIÓN")
     st.header("📦 Gestión de Inventario y Rotación")
     
     # Métricas globales de inventario
@@ -862,111 +921,111 @@ with tab5:
         horizontal=True
     )
     
-    if dataset_seleccionado == "Ventas":
-        df_mostrar = df_raw
-    elif dataset_seleccionado == "Inventario":
-        df_mostrar = df_inventory
-    else:
-        df_mostrar = df_rotacion
+    # if dataset_seleccionado == "Ventas":
+    #     df_mostrar = df_raw
+    # elif dataset_seleccionado == "Inventario":
+    #     df_mostrar = df_inventory
+    # else:
+    #     df_mostrar = df_rotacion
     
-    # Filtros adicionales para los datos
-    col1, col2, col3 = st.columns(3)
+    # # Filtros adicionales para los datos
+    # col1, col2, col3 = st.columns(3)
     
-    with col1:
-        productos_filter = st.multiselect(
-            "Filtrar por producto",
-            options=df_mostrar['producto'].unique().tolist(),
-            default=df_mostrar['producto'].unique().tolist(),
-            key="filter_productos"
-        )
+    # with col1:
+    #     productos_filter = st.multiselect(
+    #         "Filtrar por producto",
+    #         options=df_mostrar['producto'].unique().tolist(),
+    #         default=df_mostrar['producto'].unique().tolist(),
+    #         key="filter_productos"
+    #     )
     
-    with col2:
-        tiendas_filter = st.multiselect(
-            "Filtrar por tienda",
-            options=df_mostrar['tienda_nombre'].unique().tolist(),
-            default=df_mostrar['tienda_nombre'].unique().tolist(),
-            key="filter_tiendas"
-        )
+    # with col2:
+    #     tiendas_filter = st.multiselect(
+    #         "Filtrar por tienda",
+    #         options=df_mostrar['tienda_nombre'].unique().tolist(),
+    #         default=df_mostrar['tienda_nombre'].unique().tolist(),
+    #         key="filter_tiendas"
+    #     )
     
-    if dataset_seleccionado == "Ventas":
-        with col3:
-            fecha_filter = st.date_input(
-                "Filtrar por fecha",
-                value=(
-                    datetime.strptime(filtros['dates']['fecha_inicio'], "%Y-%m-%d"),
-                    datetime.strptime(filtros['dates']['fecha_fin'], "%Y-%m-%d")
-                ),
-                format="YYYY-MM-DD",
-                key="filter_fecha"
-            )
+    # if dataset_seleccionado == "Ventas":
+    #     with col3:
+    #         fecha_filter = st.date_input(
+    #             "Filtrar por fecha",
+    #             value=(
+    #                 datetime.strptime(filtros['dates']['fecha_inicio'], "%Y-%m-%d"),
+    #                 datetime.strptime(filtros['dates']['fecha_fin'], "%Y-%m-%d")
+    #             ),
+    #             format="YYYY-MM-DD",
+    #             key="filter_fecha"
+    #         )
     
-    # Aplicar filtros
-    df_filtrado = df_mostrar.copy()
+    # # Aplicar filtros
+    # df_filtrado = df_mostrar.copy()
     
-    if productos_filter:
-        df_filtrado = df_filtrado[df_filtrado['producto'].isin(productos_filter)]
+    # if productos_filter:
+    #     df_filtrado = df_filtrado[df_filtrado['producto'].isin(productos_filter)]
     
-    if tiendas_filter:
-        df_filtrado = df_filtrado[df_filtrado['tienda_nombre'].isin(tiendas_filter)]
+    # if tiendas_filter:
+    #     df_filtrado = df_filtrado[df_filtrado['tienda_nombre'].isin(tiendas_filter)]
     
-    if dataset_seleccionado == "Ventas" and len(fecha_filter) == 2:
-        fecha_inicio_filter = fecha_filter[0].strftime("%Y-%m-%d")
-        fecha_fin_filter = fecha_filter[1].strftime("%Y-%m-%d")
-        df_filtrado = df_filtrado[
-            (df_filtrado['fecha'] >= fecha_inicio_filter) & 
-            (df_filtrado['fecha'] <= fecha_fin_filter)
-        ]
+    # if dataset_seleccionado == "Ventas" and len(fecha_filter) == 2:
+    #     fecha_inicio_filter = fecha_filter[0].strftime("%Y-%m-%d")
+    #     fecha_fin_filter = fecha_filter[1].strftime("%Y-%m-%d")
+    #     df_filtrado = df_filtrado[
+    #         (df_filtrado['fecha'] >= fecha_inicio_filter) & 
+    #         (df_filtrado['fecha'] <= fecha_fin_filter)
+    #     ]
     
-    st.divider()
+    # st.divider()
     
-    # Mostrar estadísticas del dataset filtrado
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Registros", f"{len(df_filtrado):,}")
-    with col2:
-        if dataset_seleccionado == "Ventas":
-            st.metric("Ventas", f"${df_filtrado['ventas'].sum():,.0f}")
-        elif dataset_seleccionado == "Inventario":
-            st.metric("Stock Total", f"{df_filtrado['stock_actual'].sum():,}")
-        else:
-            st.metric("Stock Total", f"{df_filtrado['stock_actual'].sum():,}")
-    with col3:
-        if dataset_seleccionado == "Ventas":
-            st.metric("Transacciones", f"{df_filtrado['transacciones'].sum():,}")
-        elif dataset_seleccionado == "Inventario":
-            st.metric("Valor Inventario", f"${df_filtrado['valor_inventario'].sum():,.0f}")
-        else:
-            st.metric("Unidades Vendidas", f"{df_filtrado['unidades_vendidas'].sum():,.0f}")
-    with col4:
-        st.metric("Productos Únicos", len(df_filtrado['producto'].unique()))
+    # # Mostrar estadísticas del dataset filtrado
+    # col1, col2, col3, col4 = st.columns(4)
+    # with col1:
+    #     st.metric("Total Registros", f"{len(df_filtrado):,}")
+    # with col2:
+    #     if dataset_seleccionado == "Ventas":
+    #         st.metric("Ventas", f"${df_filtrado['ventas'].sum():,.0f}")
+    #     elif dataset_seleccionado == "Inventario":
+    #         st.metric("Stock Total", f"{df_filtrado['stock_actual'].sum():,}")
+    #     else:
+    #         st.metric("Stock Total", f"{df_filtrado['stock_actual'].sum():,}")
+    # with col3:
+    #     if dataset_seleccionado == "Ventas":
+    #         st.metric("Transacciones", f"{df_filtrado['transacciones'].sum():,}")
+    #     elif dataset_seleccionado == "Inventario":
+    #         st.metric("Valor Inventario", f"${df_filtrado['valor_inventario'].sum():,.0f}")
+    #     else:
+    #         st.metric("Unidades Vendidas", f"{df_filtrado['unidades_vendidas'].sum():,.0f}")
+    # with col4:
+    #     st.metric("Productos Únicos", len(df_filtrado['producto'].unique()))
     
-    st.divider()
+    # st.divider()
     
-    # Mostrar datos
-    st.dataframe(
-        df_filtrado,
-        use_container_width=True,
-        height=600
-    )
+    # # Mostrar datos
+    # st.dataframe(
+    #     df_filtrado,
+    #     use_container_width=True,
+    #     height=600
+    # )
     
-    st.divider()
+    # st.divider()
     
-    # Opciones de descarga
-    col1, col2, col3 = st.columns(3)
+    # # Opciones de descarga
+    # col1, col2, col3 = st.columns(3)
     
-    with col1:
-        csv = df_filtrado.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label=f"📥 Descargar {dataset_seleccionado}",
-            data=csv,
-            file_name=f"{dataset_seleccionado.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            mime="text/csv",
-        )
+    # with col1:
+    #     csv = df_filtrado.to_csv(index=False).encode('utf-8')
+    #     st.download_button(
+    #         label=f"📥 Descargar {dataset_seleccionado}",
+    #         data=csv,
+    #         file_name=f"{dataset_seleccionado.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+    #         mime="text/csv",
+    #     )
     
-    with col2:
-        st.write(f"**Dataset:** {dataset_seleccionado}")
-        st.write(f"**Registros:** {len(df_filtrado):,}")
+    # with col2:
+    #     st.write(f"**Dataset:** {dataset_seleccionado}")
+    #     st.write(f"**Registros:** {len(df_filtrado):,}")
     
-    with col3:
-        st.write("**Formato:** CSV (UTF-8)")
-        st.write(f"**Fecha:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    # with col3:
+    #     st.write("**Formato:** CSV (UTF-8)")
+    #     st.write(f"**Fecha:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

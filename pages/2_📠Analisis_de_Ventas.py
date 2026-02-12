@@ -30,6 +30,9 @@ stores_selected = store_filter(sidebar)
 category_selected = category_filter(sidebar)
 products_selected = product_filter(sidebar, category_ids=category_selected)
 
+# ======== TO DO: REVERTIR ? =====================
+
+
 # filtros_actuales = {
 #     "dates": dates_selected,
 #     "stores": stores_selected,
@@ -38,13 +41,14 @@ products_selected = product_filter(sidebar, category_ids=category_selected)
 # }
 
 
-# ======== TO DO: REVERTIR ? =====================
 filtros_actuales = {
     "dates": {"fecha_inicio": "2026-02-01", "fecha_fin": "2026-02-11"},
     "stores": [],
     "category": [],
     "products": ["BOLSO EPONA - NAVY/PURPLE"],
 }
+
+# Eliminar cuando se revierta el cambio
 st.session_state["filtros_aplicados"] = True
 st.session_state["filtros"] = filtros_actuales
 # ======================================= 
