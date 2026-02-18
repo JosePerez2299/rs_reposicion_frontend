@@ -92,7 +92,7 @@ def render(filtros):
                 "ticket_promedio": "${:,.2f}",
                 "porcentaje": "{:.1f}%"
             }).background_gradient(subset=['ventas'], cmap='YlGn'),
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             height=400
         )
@@ -107,7 +107,7 @@ def render(filtros):
         )
         fig_pie.update_traces(textposition='inside', textinfo='percent')
         fig_pie.update_layout(showlegend=False, height=400)
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.plotly_chart(fig_pie, width='stretch')
     
     st.divider()
     # endregion

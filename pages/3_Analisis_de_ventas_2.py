@@ -276,7 +276,7 @@ with tab1:
                 "ticket_promedio": "${:,.2f}",
                 "porcentaje": "{:.1f}%"
             }).background_gradient(subset=['ventas'], cmap='YlGn'),
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             height=400
         )
@@ -291,7 +291,7 @@ with tab1:
         )
         fig_pie.update_traces(textposition='inside', textinfo='percent')
         fig_pie.update_layout(showlegend=False, height=400)
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.plotly_chart(fig_pie, width='stretch')
     
     st.divider()
     
@@ -317,7 +317,7 @@ with tab1:
                 "ticket_promedio": "${:,.2f}",
                 "porcentaje": "{:.1f}%"
             }),
-            use_container_width=True,
+            width='stretch',
             hide_index=True
         )
     
@@ -330,7 +330,7 @@ with tab1:
             title='Ventas por Tienda'
         )
         fig_bar.update_traces(texttemplate='$%{text:,.0f}', textposition='outside')
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, width='stretch')
     
     st.divider()
     
@@ -361,7 +361,7 @@ with tab1:
         height=400
     )
     
-    st.plotly_chart(fig_evol, use_container_width=True)
+    st.plotly_chart(fig_evol, width='stretch')
 
 # ============= TAB 2: ANÁLISIS DETALLADO =============
 with tab2:
@@ -527,7 +527,7 @@ with tab2:
                         "Stock": "{:,}",
                         "Porcentaje Rotación": "{:.2f}"
                     }).background_gradient(subset=['Ventas $'], cmap='YlGn'),
-                    use_container_width=True,
+                    width='stretch',
                     hide_index=True,
                     column_config={
                         'Código Producto': st.column_config.TextColumn(
@@ -592,7 +592,7 @@ with tab3:
         df_matriz.style.format(
             {col: "${:,.0f}" for col in df_matriz.columns if col != 'producto'}
         ).background_gradient(subset=[col for col in df_matriz.columns if col != 'producto'], cmap='YlGnBu'),
-        use_container_width=True,
+        width='stretch',
         hide_index=True
     )
     
@@ -618,7 +618,7 @@ with tab3:
         aspect="auto"
     )
     fig_heatmap.update_layout(height=500)
-    st.plotly_chart(fig_heatmap, use_container_width=True)
+    st.plotly_chart(fig_heatmap, width='stretch')
     
     st.divider()
     
@@ -636,7 +636,7 @@ with tab3:
         title='Comparación de Ventas por Producto'
     )
     fig_comp.update_layout(height=500, hovermode='x unified')
-    st.plotly_chart(fig_comp, use_container_width=True)
+    st.plotly_chart(fig_comp, width='stretch')
     
     st.divider()
     
@@ -656,7 +656,7 @@ with tab3:
     )
     fig_grouped.update_traces(texttemplate='$%{text:,.0f}', textposition='outside')
     fig_grouped.update_layout(height=500)
-    st.plotly_chart(fig_grouped, use_container_width=True)
+    st.plotly_chart(fig_grouped, width='stretch')
 
 
 # ============= TAB 4: INVENTARIO Y ROTACIÓN =============
@@ -712,7 +712,7 @@ with tab4:
                           else 'background-color: #ffe6cc' for v in df_alertas['nivel_stock']],
                 axis=0
             ),
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             column_config={
                 'producto': 'Producto',
@@ -785,7 +785,7 @@ with tab4:
             else '',
             subset=['nivel_stock']
         ),
-        use_container_width=True,
+        width='stretch',
         hide_index=True,
         height=500,
         column_config={
@@ -822,7 +822,7 @@ with tab4:
         )
         fig_dias.update_traces(texttemplate='%{text:.1f}', textposition='outside')
         fig_dias.update_layout(showlegend=False, height=400)
-        st.plotly_chart(fig_dias, use_container_width=True)
+        st.plotly_chart(fig_dias,width='stretch')
     
     with col2:
         st.write("**Índice de Rotación por Producto**")
@@ -840,7 +840,7 @@ with tab4:
         )
         fig_rot.update_traces(texttemplate='%{text:.2f}', textposition='outside')
         fig_rot.update_layout(showlegend=False, height=400)
-        st.plotly_chart(fig_rot, use_container_width=True)
+        st.plotly_chart(fig_rot, width='stretch')
     
     st.divider()
     
@@ -864,7 +864,7 @@ with tab4:
         }
     )
     fig_nivel.update_traces(textposition='inside', textinfo='percent+label')
-    st.plotly_chart(fig_nivel, use_container_width=True)
+    st.plotly_chart(fig_nivel, width='stretch')
     
     st.divider()
     
@@ -903,7 +903,7 @@ with tab4:
             'indice_rotacion': '{:.2f}',
             'cantidad_reponer': '{:,}'
         }),
-        use_container_width=True,
+        width='stretch',
         hide_index=True
     )
 
@@ -1004,7 +1004,7 @@ with tab5:
     # # Mostrar datos
     # st.dataframe(
     #     df_filtrado,
-    #     use_container_width=True,
+    #     width='stretch',
     #     height=600
     # )
     

@@ -4,7 +4,7 @@ from components.store_filter import store_filter
 from components.product_filter import product_filter
 from components.dates_filters import dates_filter
 from components.category_filter import category_filter
-from components import tab_ventas_resumen
+from components import tab_ventas_analisis_detallado, tab_ventas_resumen
 
 # ============= CONFIGURACIÓN DE PÁGINA =============
 st.set_page_config(
@@ -15,11 +15,11 @@ st.set_page_config(
 )
 
 # ============= INICIALIZAR SESSION STATE =============
-if "filtros_aplicados" not in st.session_state:
-    st.session_state["filtros_aplicados"] = False
+if "page_2_filtros_aplicados" not in st.session_state:
+    st.session_state["page_2_filtros_aplicados"] = False
 
-if "filtros" not in st.session_state:
-    st.session_state["filtros"] = None
+if "page_2_filtros" not in st.session_state:
+    st.session_state["page_2_filtros"] = None
 
 # ============= SIDEBAR CON FILTROS =============
 sidebar = st.sidebar
@@ -45,12 +45,12 @@ filtros_actuales = {
     "dates": {"fecha_inicio": "2026-02-01", "fecha_fin": "2026-02-11"},
     "stores": [],
     "category": [],
-    "products": ["BOLSO EPONA - NAVY/PURPLE"],
+    "products": ["BOLSO EPONA - NAVY/PURPLE", "BOLSO EPONA - BLACK/GOLD"],
 }
 
 # Eliminar cuando se revierta el cambio
-st.session_state["filtros_aplicados"] = True
-st.session_state["filtros"] = filtros_actuales
+st.session_state["page_2_filtros_aplicados"] = True
+st.session_state["page_2_filtros"] = filtros_actuales
 # ======================================= 
 
 
@@ -63,21 +63,21 @@ if not products_selected:
 aplicar_filtros = sidebar.button("Aplicar Filtros", disabled=not validacion_ok)
 
 if aplicar_filtros:
-    st.session_state["filtros_aplicados"] = True
-    st.session_state["filtros"] = filtros_actuales
+    st.session_state["page_2_filtros_aplicados"] = True
+    st.session_state["page_2_filtros"] = filtros_actuales
 
 filtros_cambiaron = (
-    st.session_state["filtros_aplicados"]
-    and st.session_state["filtros"] != filtros_actuales
+    st.session_state["page_2_filtros_aplicados"]
+    and st.session_state["page_2_filtros"] != filtros_actuales
 )
 
 # ============= NAVEGACIÓN ====================
 st.title("📊 Dashboard de Ventas e Inventario")
-if not st.session_state["filtros_aplicados"] or filtros_cambiaron:
+if not st.session_state["page_2_filtros_aplicados"] or filtros_cambiaron:
     st.divider()
 
 # ============= LÓGICA DE FILTROS =============
-if st.session_state["filtros_aplicados"] and not filtros_cambiaron:
+if st.session_state["page_2_filtros_aplicados"] and not filtros_cambiaron:
 
     # Crear tabs SOLO cuando hay filtros aplicados Y NO hay cambios pendientes
     tab1, tab2, tab3, tab4, tab5 = st.tabs(
@@ -93,12 +93,13 @@ if st.session_state["filtros_aplicados"] and not filtros_cambiaron:
     # ============= TAB 1: RESUMEN GENERAL =============
     with tab1:
         with st.spinner("⏳ Cargando resumen general..."):
-            tab_ventas_resumen.render(st.session_state["filtros"])
+            tab_ventas_resumen.render(st.session_state["page_2_filtros"])
 
     # ============= TAB 2: ANÁLISIS DETALLADO =============
     with tab2:
-        st.header("Análisis Detallado por Producto")
-        st.divider()
+        with st.spinner("⏳ Cargando resumen general..."):
+            tab_ventas_analisis_detallado.render(st.session_state["page_2_filtros"])
+
 
     # ... resto de tabs
 
