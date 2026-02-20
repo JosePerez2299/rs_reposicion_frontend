@@ -3,9 +3,7 @@ import datetime
 import numpy as np
 import pandas as pd
 import plotly.express as px
-
-from utils.api_client import get_total_sales_data
-
+from api.sales import get_sales_summary 
 
 def render(filtros):
     dates_selected = filtros['dates']
@@ -48,7 +46,7 @@ def render(filtros):
         metric5.metric("Tiendas", str('Todas' if len(filtros['stores']) == 0 else len(filtros['stores'])))
     
     with st.spinner("Cargando datos de ventas..."):
-        sales_data = get_total_sales_data()
+        sales_data = get_sales_summary(filtros)
     
     if not sales_data:
         st.error("No se pudieron cargar los datos de ventas")

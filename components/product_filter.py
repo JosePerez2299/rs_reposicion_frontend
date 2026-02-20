@@ -1,7 +1,6 @@
-import time
 import pandas as pd
 import streamlit as st
-from utils.api_client import get_products
+from api.products import get_products
 
 def product_filter(box, category_ids=None):
     # Inicializar session state
@@ -16,10 +15,10 @@ def product_filter(box, category_ids=None):
         placeholder.empty()
     
     df = pd.DataFrame(st.session_state.cached_products)
-    
+
     # Filtrar por categorías si existen
     if category_ids:
-        df = df[df["category_id"].isin(category_ids)]
+        df = df[df["dim_category_id"].isin(category_ids)]
     
     options = df.to_dict(orient="records")
     

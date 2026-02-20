@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api_client import get_categories
+from api.products import get_categories
 
 def category_filter(box):
     

@@ -1,9 +1,8 @@
-
-from utils.api_client import get_stores
+import api.stores as stores
 
 def store_filter(box):
     
-    opciones = get_stores()
+    opciones = stores.get_stores()
 
     if opciones:
         seleccionados = box.multiselect(

@@ -43,9 +43,15 @@ products_selected = product_filter(sidebar, category_ids=category_selected)
 
 filtros_actuales = {
     "dates": {"fecha_inicio": "2026-02-01", "fecha_fin": "2026-02-11"},
-    "stores": [],
+    "stores": [101,102],
     "category": [],
-    "products": ["BOLSO EPONA - NAVY/PURPLE", "BOLSO EPONA - BLACK/GOLD"],
+    "products": [
+        "BOLSO EPONA - NAVY/PURPLE",
+        "BOLSO EPONA - BLACK/GOLD",
+        "BOLSO EPONA - BLACK/WHITE",
+        "BOLSO EPONA - BLACK/BLUE",
+        "BOLSO EPONA - BLACK/RED",
+    ],
 }
 
 # Eliminar cuando se revierta el cambio
@@ -99,7 +105,6 @@ if st.session_state["page_2_filtros_aplicados"] and not filtros_cambiaron:
     with tab2:
         with st.spinner("⏳ Cargando resumen general..."):
             tab_ventas_analisis_detallado.render(st.session_state["page_2_filtros"])
-
 
     # ... resto de tabs
 
