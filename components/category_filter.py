@@ -18,7 +18,7 @@ def category_filter(box):
         seleccion = box.multiselect(
             "Categoría:",
             options=categorias,
-            format_func=lambda x: x["description"],
+            format_func=lambda x: x["name"],
             default=preseleccionadas,  # Objetos completos que están en opciones
             key="category_select",
             help="Selecciona ninguna o más categorías",

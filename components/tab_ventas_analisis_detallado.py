@@ -34,8 +34,11 @@ def render(filters):
         rev = st.session_state[reset_key]  # sufijo que cambia al limpiar
 
         with st.expander(
-            f"#{index + 1} - {product}", expanded=True if index == 0 else False
+            label = f"#{index + 1} - **{product}**",
+            expanded=True if index == 0 else False,            
         ):
+            st.write("Tiendas")
+            st.write(stores)
             subtab1, subtab2, subtab3 = st.tabs(
                 ["🏪 Por Tienda", "📅 Evolución", "📊 Stats"]
             )

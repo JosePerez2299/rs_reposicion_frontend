@@ -8,7 +8,7 @@ def store_filter(box):
         seleccionados = box.multiselect(
             "Tiendas",
             options=opciones,
-            format_func=lambda x: f"{x['id']} - {x['name']}",
+            format_func=lambda x: f"{x['name']}",
             default=[],
             help="Selecciona ninguna o más tiendas",
             placeholder="Desplegar tiendas"
