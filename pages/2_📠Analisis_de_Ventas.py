@@ -33,30 +33,30 @@ products_selected = product_filter(sidebar, category_ids=category_selected)
 # ======== TO DO: REVERTIR ? =====================
 
 
-# filtros_actuales = {
-#     "dates": dates_selected,
-#     "stores": stores_selected,
-#     "category": category_selected,
-#     "products": products_selected,
-# }
-
-
 filtros_actuales = {
-    "dates": {"fecha_inicio": "2026-02-01", "fecha_fin": "2026-02-11"},
-    "stores": [101,102],
-    "category": [],
-    "products": [
-        "BOLSO EPONA - NAVY/PURPLE",
-        "BOLSO EPONA - BLACK/GOLD",
-        "BOLSO EPONA - BLACK/WHITE",
-        "BOLSO EPONA - BLACK/BLUE",
-        "BOLSO EPONA - BLACK/RED",
-    ],
+    "dates": dates_selected,
+    "stores": stores_selected,
+    "category": category_selected,
+    "products": products_selected,
 }
 
-# Eliminar cuando se revierta el cambio
-st.session_state["page_2_filtros_aplicados"] = True
-st.session_state["page_2_filtros"] = filtros_actuales
+
+# filtros_actuales = {
+#     "dates": {"fecha_inicio": "2026-02-01", "fecha_fin": "2026-02-11"},
+#     "stores": [101,102],
+#     "category": [],
+#     "products": [
+#         "BOLSO EPONA - NAVY/PURPLE",
+#         "BOLSO EPONA - BLACK/GOLD",
+#         "BOLSO EPONA - BLACK/WHITE",
+#         "BOLSO EPONA - BLACK/BLUE",
+#         "BOLSO EPONA - BLACK/RED",
+#     ],
+# }
+
+# # Eliminar cuando se revierta el cambio
+# st.session_state["page_2_filtros_aplicados"] = True
+# st.session_state["page_2_filtros"] = filtros_actuales
 # ======================================= 
 
 

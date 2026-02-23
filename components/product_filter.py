@@ -35,11 +35,11 @@ def product_filter(box, category_ids=None):
                 "Productos",
                 options=options,
                 default=preselected,
-                format_func=lambda x: x["name"].strip(),
+                format_func=lambda x: x["name"],
                 key="product_multiselect"
             )
     
     # Actualizar la lista de IDs seleccionados
-    st.session_state.product_selection_ids = [item["name"].strip() for item in selected]
+    st.session_state.product_selection_ids = [item["name"] for item in selected]
     
     return st.session_state.product_selection_ids
