@@ -17,7 +17,7 @@ def _get_stock_indicators(df: pd.DataFrame, dias_periodo: int) -> dict:
 
         if stock == 0:
             conteos["negro"] += 1
-        elif qty_sold == 0:
+        elif qty_sold <= 0:  # FIX: cubre negativos y cero
             conteos["amarillo"] += 1
         else:
             if dias_periodo > 0:
@@ -250,15 +250,15 @@ def render(filters):
                     dias_stock = filtered_df.apply(
                         lambda row: (
                             round(row["stock"] / (row["qty_sold"] / dias_periodo), 1)
-                            if dias_periodo > 0 and row["qty_sold"] > 0
+                            if dias_periodo > 0 and row["qty_sold"] > 0  # FIX: > 0 excluye negativos
                             else None
                         ),
                         axis=1,
                     )
 
                     def icono_stock(stock, ventas, dias):
-                        if stock == 0:   return "⚫"
-                        elif ventas == 0: return "⚪"
+                        if stock == 0:    return "⚫"
+                        elif ventas <= 0: return "⚪"  # FIX: <= 0 cubre ventas negativas
                         elif stock < 3 or (dias is not None and dias < 7):  return "🔴"
                         elif stock < 6 or (dias is not None and dias < 14): return "🟡"
                         else: return "🟢"
@@ -274,14 +274,18 @@ def render(filters):
                         dias   = dias_stock[row.name]
                         stock  = row["stock"]
 
-                        if stock == 0:  return "⚫ Sin stock"
-                        if ventas == 0: return "⚪ Sin movimiento"
+                        if stock == 0:   return "⚫ Sin stock"
+                        if ventas <= 0:  return "⚪ Sin movimiento"  # FIX: <= 0 cubre ventas negativas
                         if dias is None or fecha_fin is None: return "—"
+
+                        # FIX: guard contra NaN, infinito o valores negativos en dias
+                        if not isinstance(dias, (int, float)) or pd.isna(dias) or dias < 0:
+                            return "—"
 
                         fecha_quiebre = fecha_fin + timedelta(days=int(dias))
                         fecha_str = f"{fecha_quiebre.day} {fecha_quiebre.strftime('%b')}"
 
-                        if dias < 7:   return f"🔴 Quiebre ~{fecha_str}"
+                        if dias < 7:    return f"🔴 Quiebre ~{fecha_str}"
                         elif dias < 14: return f"🟡 Quiebre ~{fecha_str}"
                         else:           return f"🟢 Quiebre ~{fecha_str}"
 
