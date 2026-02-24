@@ -36,11 +36,12 @@ def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, 
 
 
 @st.cache_data(ttl=60 * 10)
-def get_top_sales_products(products: list, dates: dict) -> dict[str, int]:
+def get_top_sales_products(products: list, stores: list, dates: dict) -> dict[str, int]:
     response = client.get(
         "sales/top",
         params={
             "product_names": products,
+            "store_ids": stores,
             "start_date": dates["fecha_inicio"],
             "end_date": dates["fecha_fin"],
         },

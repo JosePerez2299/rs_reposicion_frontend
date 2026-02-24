@@ -130,39 +130,91 @@ def render(filters):
                             st.rerun()
 
                     col_f4, col_f5, col_f6, col_f7 = st.columns(4)
+
+                    # --- STOCK ---
                     with col_f4:
+                        stock_min_active = st.checkbox(
+                            "Stock mínimo",
+                            value=False,
+                            key=f"stock_min_active_{index}_{rev}",
+                        )
                         stock_min = st.number_input(
-                            "Stock mínimo", min_value=0, value=0, step=1,
+                            "Valor",
+                            min_value=None,
+                            value=0,
+                            step=1,
                             key=f"stock_min_{index}_{rev}",
+                            disabled=not stock_min_active,
+                            label_visibility="collapsed",
                         )
+
                     with col_f5:
+                        stock_max_active = st.checkbox(
+                            "Stock máximo",
+                            value=False,
+                            key=f"stock_max_active_{index}_{rev}",
+                        )
                         stock_max = st.number_input(
-                            "Stock máximo", min_value=0, value=99999, step=1,
+                            "Valor",
+                            min_value=None,
+                            value=99999,
+                            step=1,
                             key=f"stock_max_{index}_{rev}",
+                            disabled=not stock_max_active,
+                            label_visibility="collapsed",
                         )
+
+                    # --- VENTAS ---
                     with col_f6:
-                        qty_min = st.number_input(
-                            "Ventas mínimas", min_value=0, value=0, step=1,
-                            key=f"qty_min_{index}_{rev}",
+                        qty_min_active = st.checkbox(
+                            "Ventas mínimas",
+                            value=False,
+                            key=f"qty_min_active_{index}_{rev}",
                         )
+                        qty_min = st.number_input(
+                            "Valor",
+                            min_value=None,
+                            value=0,
+                            step=1,
+                            key=f"qty_min_{index}_{rev}",
+                            disabled=not qty_min_active,
+                            label_visibility="collapsed",
+                        )
+
                     with col_f7:
+                        qty_max_active = st.checkbox(
+                            "Ventas máximas",
+                            value=False,
+                            key=f"qty_max_active_{index}_{rev}",
+                        )
                         qty_max = st.number_input(
-                            "Ventas máximas", min_value=0, value=99999, step=1,
+                            "Valor",
+                            min_value=None,
+                            value=99999,
+                            step=1,
                             key=f"qty_max_{index}_{rev}",
+                            disabled=not qty_max_active,
+                            label_visibility="collapsed",
                         )
 
                 # --- APLICAR FILTROS ---
                 filtered_df = df.copy()
+
+                # Filtros de tienda y variante (siempre activos si hay selección)
                 if selected_stores:
                     filtered_df = filtered_df[filtered_df["store_name"].isin(selected_stores)]
                 if products_ids:
                     filtered_df = filtered_df[filtered_df["product_id"].isin(products_ids)]
-                filtered_df = filtered_df[
-                    (filtered_df["stock"] >= stock_min)
-                    & (filtered_df["stock"] <= stock_max)
-                    & (filtered_df["qty_sold"] >= qty_min)
-                    & (filtered_df["qty_sold"] <= qty_max)
-                ]
+
+                # Filtros numéricos: solo se aplican si el checkbox está activo
+                if stock_min_active:
+                    filtered_df = filtered_df[filtered_df["stock"] >= stock_min]
+                if stock_max_active:
+                    filtered_df = filtered_df[filtered_df["stock"] <= stock_max]
+                if qty_min_active:
+                    filtered_df = filtered_df[filtered_df["qty_sold"] >= qty_min]
+                if qty_max_active:
+                    filtered_df = filtered_df[filtered_df["qty_sold"] <= qty_max]
 
                 # --- RESUMEN ---
                 total_ventas        = filtered_df["qty_sold"].sum()
@@ -245,6 +297,6 @@ def render(filters):
                     col_order = [c for c in col_order if c in display_df.columns]
                     display_df = display_df[col_order]
 
-                    st.dataframe(display_df, use_container_width=True)
+                    st.dataframe(display_df, width="stretch")
                 else:
-                    st.dataframe(filtered_df, use_container_width=True)
+                    st.dataframe(filtered_df, width="stretch")

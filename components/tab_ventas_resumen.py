@@ -75,7 +75,9 @@ def render(filtros):
     st.subheader("🏆 Ranking de Productos")
 
     with st.spinner("Cargando ranking de productos..."):
-        top_products = get_top_sales_products(products_selected, dates_selected)
+        top_products = get_top_sales_products(
+            products_selected, stores_selected, dates_selected
+        )
 
     if not top_products:
         st.warning("No hay datos de productos para mostrar")
@@ -87,7 +89,7 @@ def render(filtros):
             ["product_name", "qty_sold", "price", "transactions"]
         ].copy()
         display_df.columns = ["Producto", "Unidades", "Monto", "Transacciones"]
-        
+
         # Agregar columna de posición
         display_df.insert(0, "Posición", range(1, len(display_df) + 1))
 
@@ -102,7 +104,7 @@ def render(filtros):
                         "Transacciones": "{:,}",
                     }
                 ).background_gradient(subset=["Unidades"], cmap="YlGn"),
-                use_container_width=True,
+                width='stretch',
                 hide_index=True,
                 height=400,
             )
@@ -117,7 +119,7 @@ def render(filtros):
             )
             fig_pie.update_traces(textposition="inside", textinfo="percent+label")
             fig_pie.update_layout(showlegend=False, height=400)
-            st.plotly_chart(fig_pie, use_container_width=True)
+            st.plotly_chart(fig_pie, width='stretch')
 
     st.divider()
     # endregion
