@@ -4,7 +4,7 @@ from components.store_filter import store_filter
 from components.product_filter import product_filter
 from components.dates_filters import dates_filter
 from components.category_filter import category_filter
-from components import tab_ventas_analisis_detallado, tab_ventas_resumen
+from components.analisis_ventas import tab_ventas_analisis_detallado, tab_ventas_resumen, tab_comparativas
 
 # ============= CONFIGURACIÓN DE PÁGINA =============
 st.set_page_config(
@@ -103,10 +103,12 @@ if st.session_state["page_2_filtros_aplicados"] and not filtros_cambiaron:
 
     # ============= TAB 2: ANÁLISIS DETALLADO =============
     with tab2:
-        with st.spinner("⏳ Cargando resumen general..."):
+        with st.spinner("⏳ Cargando análisis detallado..."):
             tab_ventas_analisis_detallado.render(st.session_state["page_2_filtros"])
 
-    # ... resto de tabs
+    with tab3:
+        with st.spinner("⏳ Cargando comparativas..."):
+            tab_comparativas.render(st.session_state["page_2_filtros"])
 
 elif filtros_cambiaron:
     st.warning(

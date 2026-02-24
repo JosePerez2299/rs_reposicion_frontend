@@ -47,3 +47,32 @@ def get_top_sales_products(products: list, stores: list, dates: dict) -> dict[st
         },
     )
     return response
+
+@st.cache_data(ttl=60 * 10)
+def get_sales_by_products_store(products: list, stores: list, dates: dict):
+    df = pd.DataFrame()
+    for product in products:
+        df_product_detail = pd.DataFrame(st.session_state.sales_detail[product])
+        if df_product_detail.empty:
+            continue
+        print(df_product_detail.head())
+        # Group by store_name and sum qty_sold, price, cost
+        group_by_store = (
+            df_product_detail.groupby("store_name")
+            .agg(
+                {
+                    "qty_sold": "sum",
+                    "price": "sum",
+                    "cost": "sum",
+                    "transactions": "sum",
+                }
+            )
+            .reset_index()
+        )
+        # Add product_name column
+        group_by_store["product_name"] = product
+        df = pd.concat([df, group_by_store], ignore_index=True)
+
+    # Reorder columns to have product_name first
+    df = df[["product_name", "store_name", "qty_sold", "price", "cost", "transactions"]]
+    return df

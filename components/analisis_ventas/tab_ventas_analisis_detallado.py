@@ -82,6 +82,8 @@ def render(filters):
             dias_periodo = (fecha_fin - fecha_inicio).days + 1
         except (KeyError, TypeError, AttributeError, ValueError):
             pass
+    
+    st.session_state["sales_detail"] = {}
 
     for index, product in enumerate(products):
 
@@ -92,8 +94,8 @@ def render(filters):
 
         # Cargar datos antes del expander para poder usarlos en el label
         sales_detail = api_sales.get_detail_by_product(product, stores, dates)
+        st.session_state["sales_detail"][product] = sales_detail
         df_raw = pd.DataFrame(sales_detail) if sales_detail else pd.DataFrame()
-
         label = _build_expander_label(product, df_raw, dias_periodo)
 
         with st.expander(label=label, expanded=(index == 0)):

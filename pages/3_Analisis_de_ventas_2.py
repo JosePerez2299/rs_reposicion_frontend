@@ -778,7 +778,7 @@ with tab4:
             'venta_diaria_promedio': '{:.2f}',
             'dias_inventario': '{:.1f}',
             'indice_rotacion': '{:.2f}'
-        }).applymap(
+        }).map(
             lambda x: 'background-color: #ffcccc' if x == 'SIN STOCK'
             else 'background-color: #ffe6cc' if x == 'CRÍTICO'
             else 'background-color: #fff4cc' if x == 'EXCESO'
