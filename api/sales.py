@@ -19,7 +19,7 @@ def get_sales_summary(filters: dict) -> dict[str, int]:
     return {"sales": 1000, "transactions": 100, "ticket_promedio": 100}
 
 
-@st.cache_data(ttl=60*3)
+@st.cache_data(ttl=60 * 3)
 def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, int]:
 
     response = client.get(
@@ -32,4 +32,17 @@ def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, 
         },
     )
 
+    return response
+
+
+@st.cache_data(ttl=60 * 10)
+def get_top_sales_products(products: list, dates: dict) -> dict[str, int]:
+    response = client.get(
+        "sales/top",
+        params={
+            "product_names": products,
+            "start_date": dates["fecha_inicio"],
+            "end_date": dates["fecha_fin"],
+        },
+    )
     return response

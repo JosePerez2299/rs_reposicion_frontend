@@ -193,10 +193,11 @@ def render(filters):
                     display_df = filtered_df.copy()
 
                     # Ocultar columnas internas
-                    cols_to_drop = [c for c in ["store_id", "cost"] if c in display_df.columns]
+                    cols_to_drop = [c for c in ["store_id"] if c in display_df.columns]
                     display_df = display_df.drop(columns=cols_to_drop)
 
                     display_df["stock"] = filtered_df.apply(formato_stock, axis=1)
+                    display_df["rotation"] = filtered_df["rotation"].apply(lambda x: f"{x:.2f}%")
                     display_df["proyección"] = filtered_df.apply(formato_proyeccion, axis=1)
 
                     # Reordenar columnas
