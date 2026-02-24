@@ -4,6 +4,65 @@ from datetime import datetime, timedelta
 import api.sales as api_sales
 
 
+def _get_stock_indicators(df: pd.DataFrame, dias_periodo: int) -> dict:
+    """Calcula indicadores de stock para el label del expander."""
+    if df.empty or "stock" not in df.columns:
+        return {"negro": 0, "rojo": 0, "amarillo": 0, "verde": 0}
+
+    conteos = {"negro": 0, "rojo": 0, "amarillo": 0, "verde": 0}
+
+    for _, row in df.iterrows():
+        stock = row.get("stock", 0)
+        qty_sold = row.get("qty_sold", 0)
+
+        if stock == 0:
+            conteos["negro"] += 1
+        elif qty_sold == 0:
+            conteos["amarillo"] += 1
+        else:
+            if dias_periodo > 0:
+                ventas_dia = qty_sold / dias_periodo
+                dias_restantes = stock / ventas_dia if ventas_dia > 0 else None
+            else:
+                dias_restantes = None
+
+            if dias_restantes is not None and dias_restantes < 7:
+                conteos["rojo"] += 1
+            elif stock < 6 or (dias_restantes is not None and dias_restantes < 14):
+                conteos["amarillo"] += 1
+            else:
+                conteos["verde"] += 1
+
+    return conteos
+
+
+def _build_expander_label(product: str, df: pd.DataFrame, dias_periodo: int) -> str:
+    """Construye el label enriquecido del expander."""
+    if df is None or df.empty:
+        return f"**{product}** — Sin datos"
+
+    total_qty   = int(df["qty_sold"].sum()) if "qty_sold" in df.columns else 0
+    total_price = df["price"].sum() if "price" in df.columns else 0
+    total_stock = int(df["stock"].sum()) if "stock" in df.columns else 0
+
+    indicadores = _get_stock_indicators(df, dias_periodo)
+
+    stock_parts = []
+    if indicadores["negro"]   > 0: stock_parts.append(f"⚫{indicadores['negro']}")
+    if indicadores["rojo"]    > 0: stock_parts.append(f"🔴{indicadores['rojo']}")
+    if indicadores["amarillo"]> 0: stock_parts.append(f"🟡{indicadores['amarillo']}")
+    if indicadores["verde"]   > 0: stock_parts.append(f"🟢{indicadores['verde']}")
+    stock_str = " ".join(stock_parts) if stock_parts else "—"
+
+    return (
+        f"**{product}**"
+        f"　｜　{stock_str}"
+        f"　｜　📦 Stock: {total_stock:,}"
+        f"　｜　🛒 Vendido: {total_qty:,} uds"
+        f"　｜　💰 ${total_price:,.0f}"
+    )
+
+
 def render(filters):
     dates = filters["dates"]
     stores = filters["stores"]
@@ -19,7 +78,7 @@ def render(filters):
     if dates and "fecha_inicio" in dates and "fecha_fin" in dates:
         try:
             fecha_inicio = datetime.strptime(dates["fecha_inicio"], "%Y-%m-%d")
-            fecha_fin = datetime.strptime(dates["fecha_fin"], "%Y-%m-%d")
+            fecha_fin    = datetime.strptime(dates["fecha_fin"], "%Y-%m-%d")
             dias_periodo = (fecha_fin - fecha_inicio).days + 1
         except (KeyError, TypeError, AttributeError, ValueError):
             pass
@@ -31,21 +90,22 @@ def render(filters):
             st.session_state[reset_key] = 0
         rev = st.session_state[reset_key]
 
-        with st.expander(
-            label=f"#{index + 1} - **{product}**",
-            expanded=True if index == 0 else False,
-        ):
+        # Cargar datos antes del expander para poder usarlos en el label
+        sales_detail = api_sales.get_detail_by_product(product, stores, dates)
+        df_raw = pd.DataFrame(sales_detail) if sales_detail else pd.DataFrame()
+
+        label = _build_expander_label(product, df_raw, dias_periodo)
+
+        with st.expander(label=label, expanded=(index == 0)):
             subtab1, subtab2, subtab3 = st.tabs(
                 ["🏪 Por Tienda", "📅 Evolución", "📊 Stats"]
             )
             with subtab1:
-                sales_detail = api_sales.get_detail_by_product(product, stores, dates)
-
-                if not sales_detail:
+                if df_raw.empty:
                     st.write("No hay datos para mostrar")
                     continue
 
-                df = pd.DataFrame(sales_detail)
+                df = df_raw.copy()
 
                 with st.expander("Filtros", expanded=False):
                     col_f1, col_f2, col_f3 = st.columns([3, 3, 1])
@@ -105,24 +165,18 @@ def render(filters):
                 ]
 
                 # --- RESUMEN ---
-                total_ventas = filtered_df["qty_sold"].sum()
+                total_ventas        = filtered_df["qty_sold"].sum()
                 total_transacciones = filtered_df["transactions"].sum()
-                total_stock = filtered_df["stock"].sum()
-                total_monto = filtered_df["price"].sum()
-                ventas_promedio_dia_total = (
-                    (total_ventas / dias_periodo) if dias_periodo > 0 else 0
-                )
+                total_stock         = filtered_df["stock"].sum()
+                total_monto         = filtered_df["price"].sum()
+                ventas_promedio_dia_total = (total_ventas / dias_periodo) if dias_periodo > 0 else 0
 
                 st.subheader("Resumen")
                 col1, col2, col3, col4, col5, col6 = st.columns(6)
-                with col1:
-                    st.metric("Unidades Vendidas", f"{total_ventas:,.0f}")
-                with col2:
-                    st.metric("Transacciones", f"{total_transacciones:,.0f}")
-                with col3:
-                    st.metric("Stock Total", f"{total_stock:,.0f}")
-                with col4:
-                    st.metric("Monto Total", f"${total_monto:,.2f}")
+                with col1: st.metric("Unidades Vendidas", f"{total_ventas:,.0f}")
+                with col2: st.metric("Transacciones", f"{total_transacciones:,.0f}")
+                with col3: st.metric("Stock Total", f"{total_stock:,.0f}")
+                with col4: st.metric("Monto Total", f"${total_monto:,.2f}")
                 with col5:
                     st.metric(
                         "Ventas Promedio / Día",
@@ -151,60 +205,46 @@ def render(filters):
                     )
 
                     def icono_stock(stock, ventas, dias):
-                        if stock == 0:
-                            return "⚫"
-                        elif ventas == 0:
-                            return "⚪"
-                        elif stock < 3 or (dias is not None and dias < 7):
-                            return "🔴"
-                        elif stock < 6 or (dias is not None and dias < 14):
-                            return "🟡"
-                        else:
-                            return "🟢"
+                        if stock == 0:   return "⚫"
+                        elif ventas == 0: return "⚪"
+                        elif stock < 3 or (dias is not None and dias < 7):  return "🔴"
+                        elif stock < 6 or (dias is not None and dias < 14): return "🟡"
+                        else: return "🟢"
 
                     def formato_stock(row):
                         ventas = ventas_promedio_dia[row.name]
-                        dias = dias_stock[row.name]
-                        icono = icono_stock(row["stock"], ventas, dias)
+                        dias   = dias_stock[row.name]
+                        icono  = icono_stock(row["stock"], ventas, dias)
                         return f"{int(row['stock'])} {icono}"
 
                     def formato_proyeccion(row):
                         ventas = ventas_promedio_dia[row.name]
-                        dias = dias_stock[row.name]
-                        stock = row["stock"]
+                        dias   = dias_stock[row.name]
+                        stock  = row["stock"]
 
-                        if stock == 0:
-                            return "⚫ Sin stock"
-                        if ventas == 0:
-                            return "⚪ Sin movimiento"
-                        if dias is None or fecha_fin is None:
-                            return "—"
+                        if stock == 0:  return "⚫ Sin stock"
+                        if ventas == 0: return "⚪ Sin movimiento"
+                        if dias is None or fecha_fin is None: return "—"
 
                         fecha_quiebre = fecha_fin + timedelta(days=int(dias))
                         fecha_str = f"{fecha_quiebre.day} {fecha_quiebre.strftime('%b')}"
 
-                        if dias < 7:
-                            return f"🔴 Quiebre ~{fecha_str}"
-                        elif dias < 14:
-                            return f"🟡 Quiebre ~{fecha_str}"
-                        else:
-                            return f"🟢 Quiebre ~{fecha_str}"
+                        if dias < 7:   return f"🔴 Quiebre ~{fecha_str}"
+                        elif dias < 14: return f"🟡 Quiebre ~{fecha_str}"
+                        else:           return f"🟢 Quiebre ~{fecha_str}"
 
                     display_df = filtered_df.copy()
-
-                    # Ocultar columnas internas
                     cols_to_drop = [c for c in ["store_id"] if c in display_df.columns]
                     display_df = display_df.drop(columns=cols_to_drop)
 
-                    display_df["stock"] = filtered_df.apply(formato_stock, axis=1)
-                    display_df["rotation"] = filtered_df["rotation"].apply(lambda x: f"{x:.2f}%")
+                    display_df["stock"]      = filtered_df.apply(formato_stock, axis=1)
+                    display_df["rotation"]   = filtered_df["rotation"].apply(lambda x: f"{x:.2f}%")
                     display_df["proyección"] = filtered_df.apply(formato_proyeccion, axis=1)
 
-                    # Reordenar columnas
                     col_order = ["product_id", "store_name", "qty_sold", "buy_qty", "stock", "rotation", "transactions", "price", "cost", "proyección"]
                     col_order = [c for c in col_order if c in display_df.columns]
                     display_df = display_df[col_order]
 
-                    st.dataframe(display_df, width='stretch')
+                    st.dataframe(display_df, use_container_width=True)
                 else:
-                    st.dataframe(filtered_df, width='stretch')
+                    st.dataframe(filtered_df, use_container_width=True)

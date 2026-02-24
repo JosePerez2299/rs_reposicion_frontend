@@ -87,6 +87,9 @@ def render(filtros):
             ["product_name", "qty_sold", "price", "transactions"]
         ].copy()
         display_df.columns = ["Producto", "Unidades", "Monto", "Transacciones"]
+        
+        # Agregar columna de posición
+        display_df.insert(0, "Posición", range(1, len(display_df) + 1))
 
         col1, col2 = st.columns([3, 2])
 
