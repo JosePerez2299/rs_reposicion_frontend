@@ -14,7 +14,6 @@ def render(filters):
         st.write("No hay productos seleccionados")
         return
 
-    # Calcular días del período una sola vez
     dias_periodo = 0
     fecha_fin = None
     if dates and "fecha_inicio" in dates and "fecha_fin" in dates:
@@ -27,18 +26,15 @@ def render(filters):
 
     for index, product in enumerate(products):
 
-        # Inicializar contador de reset por producto
         reset_key = f"reset_counter_{index}"
         if reset_key not in st.session_state:
             st.session_state[reset_key] = 0
-        rev = st.session_state[reset_key]  # sufijo que cambia al limpiar
+        rev = st.session_state[reset_key]
 
         with st.expander(
-            label = f"#{index + 1} - **{product}**",
-            expanded=True if index == 0 else False,            
+            label=f"#{index + 1} - **{product}**",
+            expanded=True if index == 0 else False,
         ):
-            st.write("Tiendas")
-            st.write(stores)
             subtab1, subtab2, subtab3 = st.tabs(
                 ["🏪 Por Tienda", "📅 Evolución", "📊 Stats"]
             )
@@ -52,27 +48,20 @@ def render(filters):
                 df = pd.DataFrame(sales_detail)
 
                 with st.expander("Filtros", expanded=False):
-                    # --- FILTROS ---
                     col_f1, col_f2, col_f3 = st.columns([3, 3, 1])
                     with col_f1:
-                        if "store_name" in df.columns:
-                            selected_stores = st.multiselect(
-                                "Selecciona las tiendas",
-                                df["store_name"].unique(),
-                                key=f"stores_{index}_{rev}",
-                            )
-                        else:
-                            selected_stores = []
+                        selected_stores = st.multiselect(
+                            "Selecciona las tiendas",
+                            df["store_name"].unique() if "store_name" in df.columns else [],
+                            key=f"stores_{index}_{rev}",
+                        )
                     with col_f2:
-                        if "product_id" in df.columns:
-                            products_ids = st.multiselect(
-                                "Selecciona las variantes",
-                                sorted(df["product_id"].unique()),
-                                format_func=lambda x: f"{x[-3:]}",
-                                key=f"products_{index}_{rev}",
-                            )
-                        else:
-                            products_ids = []
+                        products_ids = st.multiselect(
+                            "Selecciona las variantes",
+                            sorted(df["product_id"].unique()) if "product_id" in df.columns else [],
+                            format_func=lambda x: f"{x[-3:]}",
+                            key=f"products_{index}_{rev}",
+                        )
                     with col_f3:
                         st.write("")
                         st.write("")
@@ -83,59 +72,43 @@ def render(filters):
                     col_f4, col_f5, col_f6, col_f7 = st.columns(4)
                     with col_f4:
                         stock_min = st.number_input(
-                            "Stock mínimo",
-                            min_value=0,
-                            value=0,
-                            step=1,
+                            "Stock mínimo", min_value=0, value=0, step=1,
                             key=f"stock_min_{index}_{rev}",
                         )
                     with col_f5:
                         stock_max = st.number_input(
-                            "Stock máximo",
-                            min_value=0,
-                            value=99999,
-                            step=1,
+                            "Stock máximo", min_value=0, value=99999, step=1,
                             key=f"stock_max_{index}_{rev}",
                         )
                     with col_f6:
                         qty_min = st.number_input(
-                            "Ventas mínimas",
-                            min_value=0,
-                            value=0,
-                            step=1,
+                            "Ventas mínimas", min_value=0, value=0, step=1,
                             key=f"qty_min_{index}_{rev}",
                         )
                     with col_f7:
                         qty_max = st.number_input(
-                            "Ventas máximas",
-                            min_value=0,
-                            value=99999,
-                            step=1,
+                            "Ventas máximas", min_value=0, value=99999, step=1,
                             key=f"qty_max_{index}_{rev}",
                         )
 
-                # Aplicar filtros
-                filtered_df = df
-                if selected_stores and "store_name" in df.columns:
-                    filtered_df = filtered_df[
-                        filtered_df["store_name"].isin(selected_stores)
-                    ]
-                if products_ids and "product_id" in df.columns:
-                    filtered_df = filtered_df[
-                        filtered_df["product_id"].isin(products_ids)
-                    ]
+                # --- APLICAR FILTROS ---
+                filtered_df = df.copy()
+                if selected_stores:
+                    filtered_df = filtered_df[filtered_df["store_name"].isin(selected_stores)]
+                if products_ids:
+                    filtered_df = filtered_df[filtered_df["product_id"].isin(products_ids)]
                 filtered_df = filtered_df[
                     (filtered_df["stock"] >= stock_min)
                     & (filtered_df["stock"] <= stock_max)
-                    & (filtered_df["qty_solded"] >= qty_min)
-                    & (filtered_df["qty_solded"] <= qty_max)
+                    & (filtered_df["qty_sold"] >= qty_min)
+                    & (filtered_df["qty_sold"] <= qty_max)
                 ]
 
                 # --- RESUMEN ---
-                total_ventas = filtered_df["qty_solded"].sum()
+                total_ventas = filtered_df["qty_sold"].sum()
                 total_transacciones = filtered_df["transactions"].sum()
                 total_stock = filtered_df["stock"].sum()
-                total_monto = filtered_df["total"].sum()
+                total_monto = filtered_df["price"].sum()
                 ventas_promedio_dia_total = (
                     (total_ventas / dias_periodo) if dias_periodo > 0 else 0
                 )
@@ -161,34 +134,24 @@ def render(filters):
                         f"{dias_periodo:,.0f}" if dias_periodo > 0 else "—",
                     )
 
-                # Ocultar columna product_name
-                if "product_name" in filtered_df.columns:
-                    filtered_df = filtered_df.drop("product_name", axis=1)
-
                 # --- COLUMNAS CALCULADAS ---
-                if (
-                    not filtered_df.empty
-                    and "qty_solded" in filtered_df.columns
-                    and "stock" in filtered_df.columns
-                ):
+                if not filtered_df.empty:
                     ventas_promedio_dia = (
-                        (filtered_df["qty_solded"] / dias_periodo).round(2)
+                        (filtered_df["qty_sold"] / dias_periodo).round(2)
                         if dias_periodo > 0
                         else pd.Series(0, index=filtered_df.index)
                     )
                     dias_stock = filtered_df.apply(
                         lambda row: (
-                            round(row["stock"] / (row["qty_solded"] / dias_periodo), 1)
-                            if dias_periodo > 0 and row["qty_solded"] > 0
+                            round(row["stock"] / (row["qty_sold"] / dias_periodo), 1)
+                            if dias_periodo > 0 and row["qty_sold"] > 0
                             else None
                         ),
                         axis=1,
                     )
 
                     def icono_stock(stock, ventas, dias):
-                        if stock == 0 and ventas == 0:
-                            return "⚫"
-                        elif stock == 0:
+                        if stock == 0:
                             return "⚫"
                         elif ventas == 0:
                             return "⚪"
@@ -218,9 +181,7 @@ def render(filters):
                             return "—"
 
                         fecha_quiebre = fecha_fin + timedelta(days=int(dias))
-                        fecha_str = (
-                            f"{fecha_quiebre.day} {fecha_quiebre.strftime('%b')}"
-                        )
+                        fecha_str = f"{fecha_quiebre.day} {fecha_quiebre.strftime('%b')}"
 
                         if dias < 7:
                             return f"🔴 Quiebre ~{fecha_str}"
@@ -230,11 +191,19 @@ def render(filters):
                             return f"🟢 Quiebre ~{fecha_str}"
 
                     display_df = filtered_df.copy()
-                    display_df["stock"] = filtered_df.apply(formato_stock, axis=1)
-                    display_df["proyección"] = filtered_df.apply(
-                        formato_proyeccion, axis=1
-                    )
 
-                    st.dataframe(display_df, width="stretch")
+                    # Ocultar columnas internas
+                    cols_to_drop = [c for c in ["store_id", "cost"] if c in display_df.columns]
+                    display_df = display_df.drop(columns=cols_to_drop)
+
+                    display_df["stock"] = filtered_df.apply(formato_stock, axis=1)
+                    display_df["proyección"] = filtered_df.apply(formato_proyeccion, axis=1)
+
+                    # Reordenar columnas
+                    col_order = ["product_id", "store_name", "qty_sold", "buy_qty", "stock", "rotation", "transactions", "price", "cost", "proyección"]
+                    col_order = [c for c in col_order if c in display_df.columns]
+                    display_df = display_df[col_order]
+
+                    st.dataframe(display_df, width='stretch')
                 else:
-                    st.dataframe(filtered_df, width="stretch")
+                    st.dataframe(filtered_df, width='stretch')
