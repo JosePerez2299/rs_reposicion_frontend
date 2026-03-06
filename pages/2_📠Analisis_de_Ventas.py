@@ -110,6 +110,10 @@ if st.session_state["page_2_filtros_aplicados"] and not filtros_cambiaron:
         with st.spinner("⏳ Cargando comparativas..."):
             tab_comparativas.render(st.session_state["page_2_filtros"])
 
+    with tab4: 
+        with st.spinner("⏳ Cargando inventario y rotación..."):
+            st.write(st.session_state["page_2_filtros"])
+
 elif filtros_cambiaron:
     st.warning(
         "⚠️ Has modificado los filtros. Presiona 'Aplicar Filtros' para actualizar el dashboard."

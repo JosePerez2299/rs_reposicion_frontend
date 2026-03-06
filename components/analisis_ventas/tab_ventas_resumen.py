@@ -122,4 +122,4 @@ def render(filtros):
             st.plotly_chart(fig_pie, width='stretch')
 
     st.divider()
-    # endregion
+    #endregion
