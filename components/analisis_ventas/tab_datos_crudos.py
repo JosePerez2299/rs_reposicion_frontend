@@ -17,6 +17,12 @@ def render(filters):
     data_df = data_df.rename(columns={
         "product_id": "Código Producto",
         "product_name": "Producto",
+        "group_id": "ID Grupo",
+        "group_name": "Nombre Grupo",
+        "subgroup_id": "ID Subgrupo",
+        "subgroup_name": "Nombre Subgrupo",
+        "department_id": "ID Departamento",
+        "department_name": "Nombre Departamento",
         "store_id": "Código Tienda",
         "store_name": "Tienda",
         "price": "Precio",
@@ -27,6 +33,8 @@ def render(filters):
         "qty_buy": "Cantidad Comprada",
         "rotation": "Rotación"
     })
+   
+
     st.write(data_df)
 
     if not data_df.empty:
