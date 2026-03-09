@@ -32,9 +32,6 @@ def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, 
         },
     )
 
-    print(pd.DataFrame(response).head())
-    
-
     return response
 
 
@@ -50,7 +47,7 @@ def get_top_sales_products(products_codes: list, stores: list, dates: dict) -> d
             "end_date": dates["fecha_fin"],
         },
     )
-    
+
     return response
 
 @st.cache_data(ttl=60 * 10)
@@ -61,7 +58,6 @@ def get_sales_by_products_store(products: list, stores: list, dates: dict):
         df_product_detail = pd.DataFrame(st.session_state.sales_detail[product])
         if df_product_detail.empty:
             continue
-        print(df_product_detail.head())
         # Group by store_name and sum qty_sold, price, cost
         group_by_store = (
             df_product_detail.groupby("store_name")

@@ -67,7 +67,7 @@ def render(filters):
     dates = filters["dates"]
     stores = filters["stores"]
     products = filters["products"]
-
+    
     st.header("Análisis Detallado por Producto")
     if not products:
         st.write("No hay productos seleccionados")
@@ -96,7 +96,8 @@ def render(filters):
         sales_detail = api_sales.get_detail_by_product(product, stores, dates)
         st.session_state["sales_detail"][product] = sales_detail
         df_raw = pd.DataFrame(sales_detail) if sales_detail else pd.DataFrame()
-        label = _build_expander_label(product, df_raw, dias_periodo)
+        
+        label = _build_expander_label(sales_detail[0]["product_name"], df_raw, dias_periodo)
 
         with st.expander(label=label, expanded=(index == 0)):
             subtab1, subtab2, subtab3 = st.tabs(
