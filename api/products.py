@@ -13,7 +13,7 @@ def get_products():
         list[dict]: Lista de productos.
     """
     try:
-        products = client.get("products/id-names")
+        products = client.get("products/minimal")
         return products
     except Exception as e:
         st.error(f"Error: {e}")

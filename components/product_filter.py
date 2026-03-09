@@ -12,7 +12,6 @@ def product_filter(box, category_ids=None):
         placeholder.info("Cargando productos...")
         
         products = get_products()
-        print(products)
         st.session_state.cached_products = products
         placeholder.empty()
     

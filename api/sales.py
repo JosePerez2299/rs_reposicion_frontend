@@ -23,20 +23,24 @@ def get_sales_summary(filters: dict) -> dict[str, int]:
 def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, int]:
 
     response = client.get(
-        "sales/summary",
+        "sales/details",
         params={
-            "product_name": product,
-            "stores": stores,
+            "product_code": product,
+            "store_ids": stores,
             "start_date": dates["fecha_inicio"],
             "end_date": dates["fecha_fin"],
         },
     )
+
+    print(pd.DataFrame(response).head())
+    
 
     return response
 
 
 @st.cache_data(ttl=60 * 10)
 def get_top_sales_products(products_codes: list, stores: list, dates: dict) -> dict[str, int]:
+
     response = client.get(
         "sales/top",
         params={
@@ -46,6 +50,7 @@ def get_top_sales_products(products_codes: list, stores: list, dates: dict) -> d
             "end_date": dates["fecha_fin"],
         },
     )
+    
     return response
 
 @st.cache_data(ttl=60 * 10)
