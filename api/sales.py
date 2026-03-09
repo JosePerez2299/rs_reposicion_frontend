@@ -81,3 +81,18 @@ def get_sales_by_products_store(products: list, stores: list, dates: dict):
     # Reorder columns to have product_name first
     df = df[["product_name", "store_name", "qty_sold", "price", "cost", "transactions"]]
     return df
+
+@st.cache_data(ttl=60 * 10)
+def get_all_details(
+    product_codes: list,
+    store_ids: list,
+    dates: dict,
+) -> pd.DataFrame:
+    params = {
+        "product_codes": product_codes,
+        "store_ids": store_ids,
+        "start_date": dates["fecha_inicio"],
+        "end_date": dates["fecha_fin"],
+    }
+    response = client.get("sales/all-details", params=params)
+    return response
