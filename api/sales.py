@@ -37,17 +37,15 @@ def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, 
 
 @st.cache_data(ttl=60 * 10)
 def get_top_sales_products(products_codes: list, stores: list, dates: dict) -> dict[str, int]:
-
-    response = client.get(
-        "sales/top",
-        params={
-            "product_codes": products_codes,
-            "store_ids": stores,
-            "start_date": dates["fecha_inicio"],
-            "end_date": dates["fecha_fin"],
-        },
-    )
-
+    params = {
+        "start_date": dates["fecha_inicio"],
+        "end_date": dates["fecha_fin"],
+    }
+    body = {
+        "product_codes": products_codes,
+        "store_ids": stores,
+    }
+    response = client.post("sales/top", body=body, params=params)
     return response
 
 @st.cache_data(ttl=60 * 10)
@@ -88,11 +86,14 @@ def get_all_details(
     store_ids: list,
     dates: dict,
 ) -> pd.DataFrame:
+    # dates sigue como query params, los códigos van en el body
     params = {
-        "product_codes": product_codes,
-        "store_ids": store_ids,
         "start_date": dates["fecha_inicio"],
         "end_date": dates["fecha_fin"],
     }
-    response = client.get("sales/all-details", params=params)
+    body = {
+        "product_codes": product_codes,
+        "store_ids": store_ids,
+    }
+    response = client.post("sales/all-details", body=body, params=params)
     return response
