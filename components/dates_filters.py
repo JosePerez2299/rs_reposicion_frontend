@@ -17,6 +17,14 @@ def dates_filter(box):
         help="Selecciona un rango de fechas (máximo 180 días) o un solo día"
     )
 
+    # Calcular y mostrar el período seleccionado en días
+    if isinstance(fechas, tuple) and len(fechas) == 2:
+        dias_seleccionados = (fechas[1] - fechas[0]).days + 1
+        box.info(f"Período seleccionado: {dias_seleccionados} días")
+    elif isinstance(fechas, (date,)) or (isinstance(fechas, tuple) and len(fechas) == 1):
+        dias_seleccionados = 1
+        box.info(f"Período seleccionado: {dias_seleccionados} día")
+
     # Manejar tanto un solo día como un rango
     if isinstance(fechas, tuple):
         if len(fechas) == 2:
