@@ -30,8 +30,6 @@ stores_selected = store_filter(sidebar)
 category_selected = category_filter(sidebar)
 products_selected = product_filter(sidebar, category_ids=category_selected)
 
-# ======== TO DO: REVERTIR ? =====================
-
 
 filtros_actuales = {
     "dates": dates_selected,
@@ -39,26 +37,6 @@ filtros_actuales = {
     "category": category_selected,
     "products": products_selected,
 }
-
-
-# filtros_actuales = {
-#     "dates": {"fecha_inicio": "2026-02-01", "fecha_fin": "2026-02-11"},
-#     "stores": [101,102],
-#     "category": [],
-#     "products": [
-#         "BOLSO EPONA - NAVY/PURPLE",
-#         "BOLSO EPONA - BLACK/GOLD",
-#         "BOLSO EPONA - BLACK/WHITE",
-#         "BOLSO EPONA - BLACK/BLUE",
-#         "BOLSO EPONA - BLACK/RED",
-#     ],
-# }
-
-# # Eliminar cuando se revierta el cambio
-# st.session_state["page_2_filtros_aplicados"] = True
-# st.session_state["page_2_filtros"] = filtros_actuales
-# ======================================= 
-
 
 # Validación ANTES del botón
 validacion_ok = True
@@ -104,17 +82,17 @@ if st.session_state["page_2_filtros_aplicados"] and not filtros_cambiaron:
     # ============= TAB 2: ANÁLISIS DETALLADO =============
     with tab2:
         with st.spinner("⏳ Cargando análisis detallado..."):
-            st.write("Desarrollo en curso...")
+            st.write("⚠️ Desarrollo en curso...")
             # tab_ventas_analisis_detallado.render(st.session_state["page_2_filtros"])
 
     with tab3:
         with st.spinner("⏳ Cargando comparativas..."):
-            st.write("Desarrollo en curso...")
+            st.write("⚠️ Desarrollo en curso...")
             # tab_comparativas.render(st.session_state["page_2_filtros"])
 
     with tab4: 
         with st.spinner("⏳ Cargando inventario y rotación..."):
-            st.write("Inventario y rotación")
+            st.write("⚠️ Inventario y rotación")
     with tab5:
         with st.spinner("⏳ Cargando datos crudos..."):
             tab_datos_crudos.render(st.session_state["page_2_filtros"])

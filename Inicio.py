@@ -1,29 +1,30 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Hello",
-    page_icon="👋",
-    
+    page_title="RS Reposición",
+    page_icon="�",
+    layout="wide"
 )
 
-st.write("# Welcome to Streamlit! 👋")
-
-st.sidebar.success("Select a demo above.")
+st.write("# Sistema de Reposición y Stock 📦")
 
 st.markdown(
     """
-    Streamlit is an open-source app framework built specifically for
-    Machine Learning and Data Science projects.
-    **👈 Select a demo from the sidebar** to see some examples
-    of what Streamlit can do!
-    ### Want to learn more?
-    - Check out [streamlit.io](https://streamlit.io)
-    - Jump into our [documentation](https://docs.streamlit.io)
-    - Ask a question in our [community
-        forums](https://discuss.streamlit.io)
-    ### See more complex demos
-    - Use a neural net to [analyze the Udacity Self-driving Car Image
-        Dataset](https://github.com/streamlit/demo-self-driving)
-    - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-"""
+    Sistema frontend para la gestión de reposición y stock de productos. 
+    
+    **⚠️ Versión en Desarrollo**
+    
+    Esta es una versión preliminar donde la mayoría de módulos están deshabilitados temporalmente mientras se trabaja en su implementación.
+    
+    **🟢 Funcionalidad Activa:**
+    - Exportación a Excel para datos de reposición y stock
+    
+    **🔧 Módulos en Desarrollo:**
+    - Gestión de inventario
+    - Reportes avanzados
+    - Panel de control
+    - Notificaciones automáticas
+    """
 )
+
+st.info("👈 Seleccione 'Analisis de Ventas' desde el menú lateral para acceder a la funcionalidad disponible.")

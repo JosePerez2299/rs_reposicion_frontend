@@ -1,8 +1,10 @@
 import requests
-import os
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
 
 class ApiClient:
-    base_url = os.getenv("API_URL", "http://localhost:8000/api/v1")
+    base_url = config["API_URL"]
 
     
     def __init__(self):
