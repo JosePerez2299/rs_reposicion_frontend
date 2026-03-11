@@ -36,7 +36,8 @@ def product_filter(box, category_ids=None):
                 options=options,
                 default=preselected,
                 format_func=lambda x: f"{x['name']}",
-                key="product_multiselect"
+                key="product_multiselect",
+                max_selections=100
             )
     
     # Actualizar la lista de IDs seleccionados (ahora usando code)

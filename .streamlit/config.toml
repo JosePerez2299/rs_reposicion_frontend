@@ -1,7 +1,21 @@
 [theme]
-base = "light" 
+base = "light"
 
 [server]
 headless = true
 port = 8501
 enableCORS = false
+enableXsrfProtection = true
+address = "0.0.0.0"
+maxUploadSize = 200
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+[runner]
+magicEnabled = true
+
+[logger]
+level = "warning"
