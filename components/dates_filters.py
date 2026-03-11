@@ -5,16 +5,16 @@ import streamlit as st
 def dates_filter(box):
 
     hoy = date.today()
-    inicio_mes = date(hoy.year, hoy.month, 1)
-    hace_90_dias = hoy - timedelta(days=90)
+    ayer = hoy - timedelta(days=1)
+    max_pasado = hoy - timedelta(days=180)    
 
     fechas = box.date_input(
         "Fecha",
-        value=(inicio_mes, hoy),
-        min_value=hace_90_dias,
-        max_value=hoy,
+        value=(hoy - timedelta(days=30), ayer),
+        min_value=max_pasado,
+        max_value=ayer,
         format="DD/MM/YYYY",
-        help="Selecciona un rango de fechas (máximo 90 días) o un solo día"
+        help="Selecciona un rango de fechas (máximo 180 días) o un solo día"
     )
 
     # Manejar tanto un solo día como un rango
