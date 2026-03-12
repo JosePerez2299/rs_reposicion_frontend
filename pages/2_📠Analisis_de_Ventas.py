@@ -44,7 +44,6 @@ if filters:
     with tab1:
         with st.spinner("⏳ Cargando resumen general..."):
             if filters["product_codes"] or filters["all_products"]:
-                st.write(filters)
                 tab_ventas_resumen.render(filters)
             else:
                 st.write("⚠️ No hay filters aplicados")

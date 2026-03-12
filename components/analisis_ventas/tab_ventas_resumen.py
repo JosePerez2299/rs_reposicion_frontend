@@ -60,7 +60,6 @@ def render(filtros):
 
     with st.spinner("Cargando datos de ventas..."):
         sales_data = get_sales_summary(filtros)
-        st.write(sales_data)
     if not sales_data:
         st.error("No se pudieron cargar los datos de ventas")
         return

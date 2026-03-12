@@ -11,11 +11,6 @@ def render(filtros):
     products_selected = filtros["product_codes"]
     all_products = filtros["all_products"]
 
-    st.write("products_selected:", products_selected)
-    st.write("stores_selected:", stores_selected)
-    st.write("dates_selected:", dates_selected)
-    st.write("all_products:", all_products)
-
     if all_products:
         st.write("Estamos trabajando en esta sección cuando se seleccionan todos los productos")
         return
