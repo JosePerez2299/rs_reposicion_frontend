@@ -1,10 +1,6 @@
 import datetime
 import streamlit as st
 from components.analisis_ventas import sidebar_filters, tab_datos_crudos, tab_ventas_resumen
-from components.store_filter import store_filter
-from components.product_filter import product_filter
-from components.dates_filters import dates_filter
-from components.category_filter import category_filter
 from components.analisis_ventas import *
 
 # ============= CONFIGURACIÓN DE PÁGINA =============
