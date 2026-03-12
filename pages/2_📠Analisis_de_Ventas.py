@@ -18,7 +18,7 @@ st.set_page_config(
 
 # ============= SIDEBAR CON filters =============
 sidebar = st.sidebar
-sidebar.header(" filters ")
+sidebar.header("Filtros")
 
 sidebar_filters.render()
 filters = st.session_state.get("analisis_ventas_filters", {})

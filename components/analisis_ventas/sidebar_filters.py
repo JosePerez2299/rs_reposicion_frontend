@@ -11,7 +11,7 @@ def render():
 
     if "analisis_ventas_filters" not in st.session_state:
         st.session_state.analisis_ventas_filters = {}
-    
+
     filters = {
         "dates": {},
         "product_codes": [],
@@ -19,7 +19,7 @@ def render():
         "category_id": None,
         "group_id": None,
         "subgroup_ids": None,
-        "all_products": False
+        "all_products": False,
     }
 
     # region --------Filtro por fechas---------
@@ -56,21 +56,15 @@ def render():
         placeholder="Seleccione una o más tiendas",
     )
 
-
     if len(selected_stores) == len(stores):
         filters["store_ids"] = []
     else:
         filters["store_ids"] = [store["id"] for store in selected_stores]
 
-
-    
-
     # endregion
 
     # region --------Filtro por categorías---------
     categories = get_categories()
-
-    st.sidebar.subheader("Categorías")
 
     selected_category = st.sidebar.selectbox(
         "Categoría",
@@ -129,31 +123,31 @@ def render():
                 format_func=lambda x: x["name"],
             )
 
-    
-            if  selected_subgroups and len(selected_subgroups) == len(filtered_subgroups) or len(selected_subgroups) == 0:
+            if (
+                selected_subgroups
+                and len(selected_subgroups) == len(filtered_subgroups)
+                or len(selected_subgroups) == 0
+            ):
                 filters["subgroup_ids"] = None
             else:
-                filters["subgroup_ids"] = [subgroup["id"] for subgroup in selected_subgroups]
+                filters["subgroup_ids"] = [
+                    subgroup["id"] for subgroup in selected_subgroups
+                ]
 
             if filters["subgroup_ids"]:
                 df_products_filtered = df_products_filtered[
-                    df_products_filtered["subgroup_id"].isin(
-                        filters["subgroup_ids"]
-                    )
+                    df_products_filtered["subgroup_id"].isin(filters["subgroup_ids"])
                 ]
-
-
-
 
     filtered_products = df_products_filtered.to_dict(orient="records")
 
-
     modo = st.sidebar.radio(
         "Modo",
-        ["Seleccionar todos", "Buscar productos"],
+        # TODO: Descomentar cuando se implemente el filtro de todos los productos
+        # ["Seleccionar todos", "Buscar productos"],
+        ["Buscar productos"],
         horizontal=True,
-    )   
-
+    )
 
     if modo == "Seleccionar todos":
         filters["all_products"] = True
@@ -167,23 +161,28 @@ def render():
             max_selections=200,
         )
         if len(products_selected) == 0:
-            st.toast("Debe seleccionar al menos un producto", icon="⚠️", duration=300)
+            st.sidebar.error("Debe seleccionar al menos un producto")
             return
 
         else:
-            filters["product_codes"] = [product["code"] for product in products_selected]
+            filters["product_codes"] = [
+                product["code"] for product in products_selected
+            ]
             st.sidebar.info(f"{len(products_selected)} productos seleccionados")
-    
+
     if filters["all_products"] or filters["product_codes"]:
-        apply_button = st.sidebar.button("Aplicar", type="primary")
+        apply_button = st.sidebar.button("Aplicar filtros", type="primary")
     else:
         apply_button = False
 
     if apply_button:
         st.session_state.analisis_ventas_filters_changed = True
-        st.toast("Se aplicaron los filtros", icon="✅", duration=300, )
+        st.toast(
+            "Se aplicaron los filtros",
+            icon="✅",
+            duration=300,
+        )
         st.session_state.analisis_ventas_filters = filters
-        
 
 
 def date_filter(fechas):
