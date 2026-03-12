@@ -35,7 +35,9 @@ def get_detail_by_product(product: str, stores: list, dates: dict) -> dict[str, 
 
 
 @st.cache_data(ttl=60 * 10)
-def get_top_sales_products(products_codes: list, stores: list, dates: dict) -> dict[str, int]:
+def get_top_sales_products(
+    products_codes: list, stores: list, dates: dict
+) -> dict[str, int]:
     params = {
         "start_date": dates["fecha_inicio"],
         "end_date": dates["fecha_fin"],
@@ -89,9 +91,6 @@ def get_all_details(
 ) -> pd.DataFrame:
     # dates sigue como query params, los códigos van en el body
 
-    print("product_codes:", product_codes)
-    print("store_ids:", store_ids)
-    print("dates:", dates)
     params = {
         "start_date": dates["fecha_inicio"],
         "end_date": dates["fecha_fin"],
