@@ -78,7 +78,7 @@ def render(filters):
                 yaxis_title="Producto",
                 margin=dict(l=10, r=10, t=20, b=10),
             )
-            st.plotly_chart(fig_hm, use_container_width=True)
+            st.plotly_chart(fig_hm, width="stretch")
 
     st.divider()
 
@@ -144,7 +144,7 @@ def render(filters):
     fig_dual.update_yaxes(title_text="Ventas ($)", row=1, col=1)
     fig_dual.update_yaxes(title_text="Unidades", row=1, col=2)
 
-    st.plotly_chart(fig_dual, use_container_width=True)
+    st.plotly_chart(fig_dual, width="stretch")
 
 
     # ─────────────────────────────────────────────
@@ -192,7 +192,7 @@ def render(filters):
         margin=dict(l=10, r=10, t=20, b=20),
     )
 
-    st.plotly_chart(fig_donut, use_container_width=True)
+    st.plotly_chart(fig_donut, width="stretch")
 
     st.divider()
 
@@ -217,4 +217,4 @@ def render(filters):
     rank_df["Margen_pct"] = rank_df["Margen_pct"].map("{:.1f}%".format)
     rank_df = rank_df.rename(columns={"store_name": "Tienda", "Margen_pct": "Margen %"})
 
-    st.dataframe(rank_df, use_container_width=True)
+    st.dataframe(rank_df, width="stretch")

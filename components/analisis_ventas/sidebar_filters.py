@@ -13,12 +13,13 @@ def render():
         st.session_state.analisis_ventas_filters = {}
     
     filters = {
-        "date": {},
+        "dates": {},
         "product_codes": [],
         "store_ids": [],
-        "category": None,
-        "groups": None,
-        "subgroups": None,
+        "category_id": None,
+        "group_id": None,
+        "subgroup_ids": None,
+        "all_products": False
     }
 
     # region --------Filtro por fechas---------
@@ -42,7 +43,7 @@ def render():
     elif len(fechas) == 1:
         st.sidebar.info(f"Seleccionando 1 día")
 
-    filters["date"] = date_filter(fechas)
+    filters["dates"] = date_filter(fechas)
 
     # endregion
 
@@ -55,9 +56,14 @@ def render():
         placeholder="Seleccione una o más tiendas",
     )
 
-    filters["store_ids"] = [store["id"] for store in selected_stores]
 
- 
+    if len(selected_stores) == len(stores):
+        filters["store_ids"] = []
+    else:
+        filters["store_ids"] = [store["id"] for store in selected_stores]
+
+
+    
 
     # endregion
 
@@ -66,13 +72,15 @@ def render():
 
     st.sidebar.subheader("Categorías")
 
-    filters["category"] = st.sidebar.selectbox(
+    selected_category = st.sidebar.selectbox(
         "Categoría",
         categories,
         index=None,
         placeholder="Seleccione una categoria",
         format_func=lambda x: x["name"],
     )
+
+    filters["category_id"] = selected_category["id"] if selected_category else None
     # endregion
 
     # region --------Filtro por productos---------
@@ -82,32 +90,36 @@ def render():
     df_products = pd.DataFrame(products)
     df_products_filtered = df_products
 
-    if filters["category"]:
+    # endregion
+
+    # region --------Filtro productos por grupo ---------
+    if filters["category_id"]:
         df_groups = pd.DataFrame(groups)
         df_products_filtered = df_products_filtered[
-            df_products_filtered["category_id"] == filters["category"]["id"]
+            df_products_filtered["category_id"] == filters["category_id"]
         ]
 
         filtered_groups = df_groups[
-            df_groups["category_id"] == filters["category"]["id"]
+            df_groups["category_id"] == filters["category_id"]
         ].to_dict(orient="records")
 
-        filters["groups"] = st.sidebar.selectbox(
+        selected_group = st.sidebar.selectbox(
             "Grupo",
             filtered_groups,
             index=None,
             placeholder="Seleccione un grupo",
             format_func=lambda x: x["name"],
         )
+        filters["group_id"] = selected_group["id"] if selected_group else None
 
-        if filters["groups"]:
+        if filters["group_id"]:
             df_products_filtered = df_products_filtered[
-                df_products_filtered["group_id"] == filters["groups"]["id"]
+                df_products_filtered["group_id"] == filters["group_id"]
             ]
 
             df_subgroups = pd.DataFrame(subgroups)
             filtered_subgroups = df_subgroups[
-                df_subgroups["group_id"] == filters["groups"]["id"]
+                df_subgroups["group_id"] == filters["group_id"]
             ].to_dict(orient="records")
 
             selected_subgroups = st.sidebar.multiselect(
@@ -117,17 +129,20 @@ def render():
                 format_func=lambda x: x["name"],
             )
 
-            if len(selected_subgroups) == len(filtered_subgroups):
-                filters["subgroups"] = None
+    
+            if  selected_subgroups and len(selected_subgroups) == len(filtered_subgroups) or len(selected_subgroups) == 0:
+                filters["subgroup_ids"] = None
             else:
-                filters["subgroups"] = selected_subgroups
+                filters["subgroup_ids"] = [subgroup["id"] for subgroup in selected_subgroups]
 
-            if filters["subgroups"]:
+            if filters["subgroup_ids"]:
                 df_products_filtered = df_products_filtered[
                     df_products_filtered["subgroup_id"].isin(
-                        [subgroup["id"] for subgroup in filters["subgroups"]]
+                        filters["subgroup_ids"]
                     )
                 ]
+
+
 
 
     filtered_products = df_products_filtered.to_dict(orient="records")
@@ -139,8 +154,10 @@ def render():
         horizontal=True,
     )   
 
+
     if modo == "Seleccionar todos":
-        filters["product_codes"] = "ALL_PRODUCTS"
+        filters["all_products"] = True
+        filters["product_codes"] = None
     else:
         products_selected = st.sidebar.multiselect(
             "Producto" + " (Total: " + str(len(filtered_products)) + ")",
@@ -150,13 +167,14 @@ def render():
             max_selections=200,
         )
         if len(products_selected) == 0:
-            st.warning("Debe seleccionar al menos un producto")
+            st.toast("Debe seleccionar al menos un producto", icon="⚠️", duration=300)
+            return
 
         else:
             filters["product_codes"] = [product["code"] for product in products_selected]
             st.sidebar.info(f"{len(products_selected)} productos seleccionados")
     
-    if filters["product_codes"]:
+    if filters["all_products"] or filters["product_codes"]:
         apply_button = st.sidebar.button("Aplicar", type="primary")
     else:
         apply_button = False

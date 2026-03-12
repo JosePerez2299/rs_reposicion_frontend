@@ -3,13 +3,25 @@ import pandas as pd
 from io import BytesIO
 from api import sales
 
-def render(filters):
+def render(filtros):
     st.write("Datos crudos")
 
-    stores_ids = filters.get("stores", [])
-    product_codes = filters.get("products", [])
-    dates = filters.get("dates", [])
-    data = sales.get_all_details(product_codes, stores_ids, dates)
+    dates_selected = filtros["dates"]
+    stores_selected = filtros["store_ids"]
+    products_selected = filtros["product_codes"]
+    all_products = filtros["all_products"]
+
+    st.write("products_selected:", products_selected)
+    st.write("stores_selected:", stores_selected)
+    st.write("dates_selected:", dates_selected)
+    st.write("all_products:", all_products)
+
+    if all_products:
+        st.write("Estamos trabajando en esta sección cuando se seleccionan todos los productos")
+        return
+    else:
+        data = sales.get_all_details(products_selected, stores_selected, dates_selected)
+
     data_df = pd.DataFrame(data)
 
     

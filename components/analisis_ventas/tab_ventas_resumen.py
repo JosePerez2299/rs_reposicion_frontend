@@ -8,8 +8,9 @@ from api.sales import get_sales_summary, get_top_sales_products
 
 def render(filtros):
     dates_selected = filtros["dates"]
-    stores_selected = filtros["stores"]
-    products_selected = filtros["products"]
+    stores_selected = filtros["store_ids"]
+    products_selected = filtros["product_codes"]
+    all_products = filtros["all_products"]
 
     st.header("Resumen General")
 
@@ -30,7 +31,7 @@ def render(filtros):
                 f"**🏪 Tiendas:** {'Todas' if len(stores_selected) == 0 else len(stores_selected)} seleccionadas"
             )
         with col2:
-            st.write(f"**📦 Productos:** {len(products_selected)} seleccionados")
+            st.write(f"**📦 Productos:** {len(products_selected) if products_selected else 'Todos'} seleccionados")
 
     st.divider()
     # endregion
@@ -49,17 +50,17 @@ def render(filtros):
         metric3.metric("Ticket Promedio", "$0.00")
     with col4:
         metric4 = st.empty()
-        metric4.metric("Productos", str(len(filtros["products"])))
+        metric4.metric("Productos", str(len(products_selected) if products_selected else "Todos"))
     with col5:
         metric5 = st.empty()
         metric5.metric(
             "Tiendas",
-            str("Todas" if len(filtros["stores"]) == 0 else len(filtros["stores"])),
+            str("Todas" if len(stores_selected) == 0 else len(stores_selected)),
         )
 
     with st.spinner("Cargando datos de ventas..."):
         sales_data = get_sales_summary(filtros)
-
+        st.write(sales_data)
     if not sales_data:
         st.error("No se pudieron cargar los datos de ventas")
         return
@@ -69,15 +70,18 @@ def render(filtros):
     metric3.metric("Ticket Promedio", f"${sales_data['ticket_promedio']:,.2f}")
 
     st.divider()
-    # endregion
+    #endregion
 
-    # region ============= RANKING DE PRODUCTOS =============
+    #region ============= RANKING DE PRODUCTOS =============
     st.subheader("🏆 Ranking de Productos")
 
     with st.spinner("Cargando ranking de productos..."):
-        top_products = get_top_sales_products(
-            products_selected, stores_selected, dates_selected
-        )
+        if all_products:
+            top_products = []
+        else:
+            top_products = get_top_sales_products(
+                products_selected, stores_selected, dates_selected
+            )
 
     if not top_products:
         st.warning("No hay datos de productos para mostrar")
@@ -111,15 +115,26 @@ def render(filtros):
 
         with col2:
             st.write("**Distribución de Ventas**")
+            
+            MAX_SLICE = 10
+            
+            if len(df_productos) > MAX_SLICE:
+                top_df = df_productos.nlargest(MAX_SLICE, "qty_sold").copy()
+                otros_qty = df_productos.nsmallest(len(df_productos) - MAX_SLICE, "qty_sold")["qty_sold"].sum()
+                otros_row = pd.DataFrame([{"product_name": f"Otros ({len(df_productos) - MAX_SLICE})", "qty_sold": otros_qty}])
+                chart_df = pd.concat([top_df, otros_row], ignore_index=True)
+            else:
+                chart_df = df_productos.copy()
+
             fig_pie = px.pie(
-                df_productos,
+                chart_df,
                 values="qty_sold",
                 names="product_name",
                 hole=0.4,
             )
             fig_pie.update_traces(textposition="inside", textinfo="percent+label")
             fig_pie.update_layout(showlegend=False, height=400)
-            st.plotly_chart(fig_pie, width='stretch')
+            st.plotly_chart(fig_pie, width="stretch")
 
     st.divider()
     #endregion

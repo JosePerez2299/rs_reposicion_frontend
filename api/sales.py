@@ -1,4 +1,3 @@
-# TO DO: Implementar llamada a API real
 import time
 import pandas as pd
 import streamlit as st
@@ -48,10 +47,11 @@ def get_top_sales_products(products_codes: list, stores: list, dates: dict) -> d
     response = client.post("sales/top", body=body, params=params)
     return response
 
+
 @st.cache_data(ttl=60 * 10)
 def get_sales_by_products_store(products: list, stores: list, dates: dict):
     df = pd.DataFrame()
-    
+
     for product in products:
         df_product_detail = pd.DataFrame(st.session_state.sales_detail[product])
         if df_product_detail.empty:
@@ -75,10 +75,11 @@ def get_sales_by_products_store(products: list, stores: list, dates: dict):
 
     if df.empty:
         return df
-    
+
     # Reorder columns to have product_name first
     df = df[["product_name", "store_name", "qty_sold", "price", "cost", "transactions"]]
     return df
+
 
 @st.cache_data(ttl=60 * 10)
 def get_all_details(
@@ -87,6 +88,10 @@ def get_all_details(
     dates: dict,
 ) -> pd.DataFrame:
     # dates sigue como query params, los códigos van en el body
+
+    print("product_codes:", product_codes)
+    print("store_ids:", store_ids)
+    print("dates:", dates)
     params = {
         "start_date": dates["fecha_inicio"],
         "end_date": dates["fecha_fin"],
