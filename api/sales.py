@@ -89,7 +89,6 @@ def get_all_details(
     store_ids: list,
     dates: dict,
 ) -> pd.DataFrame:
-    # dates sigue como query params, los códigos van en el body
 
     params = {
         "start_date": dates["fecha_inicio"],
