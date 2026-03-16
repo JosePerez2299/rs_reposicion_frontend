@@ -113,7 +113,8 @@ def render():
 
             df_subgroups = pd.DataFrame(subgroups)
             filtered_subgroups = df_subgroups[
-                df_subgroups["group_id"] == filters["group_id"]
+                (df_subgroups["group_id"] == filters["group_id"])
+                & (df_subgroups["category_id"] == filters["category_id"])
             ].to_dict(orient="records")
 
             selected_subgroups = st.sidebar.multiselect(
