@@ -15,7 +15,7 @@ def render(filtros):
         st.write("Estamos trabajando en esta sección cuando se seleccionan todos los productos")
         return
     else:
-        data = sales.get_all_details(products_selected, stores_selected, dates_selected)
+        data = sales.get_products_details(products_selected, stores_selected, dates_selected)
 
     data_df = pd.DataFrame(data)
 

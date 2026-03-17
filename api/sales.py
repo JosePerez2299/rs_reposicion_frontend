@@ -84,7 +84,7 @@ def get_sales_by_products_store(products: list, stores: list, dates: dict):
 
 
 @st.cache_data(ttl=60 * 10)
-def get_all_details(
+def get_products_details(
     product_codes: list,
     store_ids: list,
     dates: dict,
@@ -98,5 +98,5 @@ def get_all_details(
         "product_codes": product_codes,
         "store_ids": store_ids,
     }
-    response = client.post("sales/all-details", body=body, params=params)
+    response = client.post("sales/products-details", body=body, params=params)
     return response
