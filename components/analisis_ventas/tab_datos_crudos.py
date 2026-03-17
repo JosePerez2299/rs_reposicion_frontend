@@ -34,10 +34,10 @@ def render(filtros):
         "store_name": "Tienda",
         "price": "Precio",
         "cost": "Costo",
-        "qty_sold": "Cantidad Vendida",
+        "qty_sold": "Ventas",
         "transactions": "Transacciones",
-        "stock": "Stock",
-        "qty_buy": "Cantidad Comprada",
+        "qty_stock": "Stock",
+        "total_buy": "Compras",
         "rotation": "Rotación"
     })
    
