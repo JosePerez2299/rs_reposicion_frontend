@@ -75,7 +75,7 @@ def render(filtros):
                         st.success("Archivo listo.")
                         st.link_button(
                             "⬇️ Descargar Excel",
-                            url=f"{base_url}/sales/all-details/export/{token}"
+                            url=f"http://rs.backend.md.local/api/v1/sales/all-details/export/{token}"
                         )
                     else:
                         st.error("No se pudo obtener el token.")
