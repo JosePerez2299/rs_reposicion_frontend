@@ -2,9 +2,9 @@ import requests
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
-
+base_url = config["API_URL"]
 class ApiClient:
-    base_url = config["API_URL"]
+    base_url = base_url
 
     
     def __init__(self):

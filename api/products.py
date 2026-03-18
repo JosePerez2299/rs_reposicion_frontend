@@ -21,7 +21,6 @@ def get_products() -> List[Product]:
         st.error(f"Error: {e}")
         return []
 
-
 @st.cache_data(ttl=3600)
 def get_categories() -> List[Category]:
     """
@@ -37,8 +36,6 @@ def get_categories() -> List[Category]:
         st.error(f"Error: {e}")
         return []
 
-
-
 @st.cache_data(ttl=3600)
 def get_all_groups() -> List[Group]:
     """
@@ -53,9 +50,6 @@ def get_all_groups() -> List[Group]:
     except Exception as e:
         st.error(f"Error: {e}")
         return []
-
-
-
 
 @st.cache_data(ttl=3600)
 def get_all_subgroups() -> List[Subgroup]:
