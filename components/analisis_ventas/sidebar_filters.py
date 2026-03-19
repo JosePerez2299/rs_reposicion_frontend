@@ -25,7 +25,7 @@ def render():
     # region --------Filtro por fechas---------
     hoy = date.today()
     ayer = hoy - timedelta(days=1)
-    max_pasado = hoy - timedelta(days=180)
+    max_pasado = hoy - timedelta(days=360)
 
     fechas = st.sidebar.date_input(
         "Fecha",
