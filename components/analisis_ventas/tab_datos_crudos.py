@@ -19,6 +19,7 @@ COLUMN_MAPPING = {
     'cost': 'Costo',
     'qty_sold': 'Ventas',
     'qty_stock': 'Stock',
+    'qty_stock_until_date': 'Stock hasta fecha',
     'total_buy': 'Compras',
     'rotation': 'Rotación',
     'transactions': 'Transacciones',
@@ -72,10 +73,11 @@ def render(filtros):
                     )
                     token = response.get("token")
                     if token:
+                        print(base_url)
                         st.success("Archivo listo.")
                         st.link_button(
                             "⬇️ Descargar Excel",
-                            url=f"http://rs.backend.md.local/api/v1/sales/all-details/export/{token}"
+                            url=f"{base_url}/sales/all-details/export/{token}"
                         )
                     else:
                         st.error("No se pudo obtener el token.")
