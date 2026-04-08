@@ -119,7 +119,7 @@ def get_products_details(
     }
     try:
         response = client.post(
-            "sales/products-details", body=body, params=params)
+            "sales/all-details", body=body, params=params)
 
         return response
     except Exception as e:

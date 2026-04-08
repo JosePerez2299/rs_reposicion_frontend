@@ -2,11 +2,14 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 from api import sales
-from api.api_client import base_url
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
+download_url = config.get("DOWNLOAD_URL", "")
 
 COLUMN_MAPPING = {
     'product_id': 'Código Producto',
-    'product_name': 'Producto',
+    'product_name': 'Producto', 
     'category_id': 'ID Categoría',
     'category_name': 'Categoría',
     'group_id': 'ID Grupo',
@@ -24,7 +27,6 @@ COLUMN_MAPPING = {
     'rotation': 'Rotación',
     'transactions': 'Transacciones',
 }
-
 
 def render(filtros):
     dates_selected = filtros["dates"]
@@ -73,11 +75,10 @@ def render(filtros):
                     )
                     token = response.get("token")
                     if token:
-                        print(base_url)
                         st.success("Archivo listo.")
                         st.link_button(
                             "⬇️ Descargar Excel",
-                            url=f"{base_url}/sales/all-details/export/{token}"
+                            url=f"{download_url}/sales/all-details/export/{token}"
                         )
                     else:
                         st.error("No se pudo obtener el token.")
