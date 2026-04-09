@@ -18,13 +18,15 @@ COLUMN_MAPPING = {
     'subgroup_name': 'Subgrupo',
     'store_id': 'ID Tienda',
     'store_name': 'Tienda',
+    "depot_id": "ID Depósito",
     'price': 'Precio',
     'cost': 'Costo',
     'qty_sold': 'Ventas',
-    'qty_stock': 'Stock',
+    
     'qty_stock_until_date': 'Stock hasta fecha',
-    'total_buy': 'Compras',
+    'total_buy_until_date': 'Compras hasta fecha',
     'rotation': 'Rotación',
+    'qty_stock': 'Stock actual',
     'transactions': 'Transacciones',
 }
 
