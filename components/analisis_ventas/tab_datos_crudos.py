@@ -19,10 +19,10 @@ COLUMN_MAPPING = {
     'store_id': 'ID Tienda',
     'store_name': 'Tienda',
     "depot_id": "ID Depósito",
+    "depot_name": "Depósito",
     'price': 'Precio',
     'cost': 'Costo',
     'qty_sold': 'Ventas',
-    
     'qty_stock_until_date': 'Stock hasta fecha',
     'total_buy_until_date': 'Compras hasta fecha',
     'rotation': 'Rotación',
